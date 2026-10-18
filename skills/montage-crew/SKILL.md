@@ -13,9 +13,9 @@ Target level: agency-grade Arabic videos where **text, images, icons, shapes and
 0. **Paths and setup (before anything else).**
    - **Two install kinds, one text.** *Plugin* (`/plugin install montage-crew@montage-crew`): the skill lives in Claude Code's plugin cache, which is replaced on every update — so the `{{…}}` placeholders in these files stay **literal forever** and nothing is ever written there. *ZIP* (unzipped into `~/.claude/skills/montage-crew`): `setup.py install` fills them in place. Either way, if you see a literal `{{…}}`, resolve it yourself:
      - `{{SKILL_DIR}}` = the folder that contains this SKILL.md (absolute path).
-     - `{{DATA_DIR}}` = `$MONTAGE_CREW_HOME` if set, else `~/.montage-crew` (absolute). All user data lives here: profile, rules, brand kit, learned styles, venv, models, GSAP (`{{DATA_DIR}}/vendor/gsap.min.js`).
+     - `{{DATA_DIR}}` = `$MONTAGE_CREW_HOME` if set, else `~/.montage-crew` (absolute). All user data lives here: profile, rules, brand kit, learned styles, venv, models (and GSAP in plugin installs: `{{DATA_DIR}}/vendor/gsap.min.js`).
      - `{{PY}}` = `{{DATA_DIR}}/venv/Scripts/python.exe` (Windows) or `{{DATA_DIR}}/venv/bin/python` (macOS/Linux) once it exists — before that, the system Python (`py -3` on Windows, `python3` elsewhere).
-     - Fastest: `<python> {{SKILL_DIR}}/scripts/mc_profile.py path` prints the three resolved absolute paths; `setup.py check` prints them too (with `install_kind`).
+     - Fastest: `<python> {{SKILL_DIR}}/scripts/mc_profile.py path` prints the three resolved absolute paths; `setup.py check` prints them too (with `install_kind` and `assets.gsap_path`).
      - **Every dispatch prompt and every command you run uses the resolved ABSOLUTE paths** — agents don't see this section; never hand them a literal `{{…}}`. All relative paths in this skill (`references/…`, `assets/…`, `scripts/…`, `templates/…`, `styles/…`) are relative to `{{SKILL_DIR}}`.
    - **Team agents' names**: plugin install → `montage-crew:mc-cutter`, `montage-crew:mc-scout`, … ; ZIP install → `mc-cutter`, `mc-scout`, … Use whichever exists in your Agent tool's list (`references/team.md`).
    - **First use** (no `{{DATA_DIR}}/installed.json`, or a script fails with a missing tool/package): run `<python> {{SKILL_DIR}}/scripts/setup.py check`. It prints JSON (ffmpeg/ffprobe/node/python, venv + packages, GSAP, missing agents (ZIP only), GPU, OS, free disk, `missing_tools`, `ready`, `detected`, `install_kind`, resolved paths). Exit 0 = ready · 2 = a system tool is missing (→ `setup.py tools`) · 5 = run `setup.py install`.
@@ -196,7 +196,7 @@ Outro: **O-BRAND-LOCKUP** · **O-CTA-FOLLOW** · **O-CURSOR-CLICK**.
 - **Quran verbatim from an API** (`api.quran.com` `text_imlaei` / `api.alquran.cloud`), checked against a second source — never typed by hand (craft/11 §7). No music under it.
 - Every number on screen is one that was said — never invented to use a counter.
 - Fonts are local `@font-face` from `assets/fonts/` (Alexandria VF primary, IBM Plex Sans Arabic, Tajawal, Cairo VF, Readex Pro, Almarai, Changa, Lalezar, Marhey, Amiri, Anton, Montserrat, …) or the brand font files in `{{DATA_DIR}}/brand/fonts/`.
-- GSAP: `{{DATA_DIR}}/vendor/gsap.min.js` (downloaded by `fetch_assets.py gsap`, SHA-256 checked) or `https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js`.
+- GSAP: the local copy at `setup.py check` › `assets.gsap_path` (plugin install: `{{DATA_DIR}}/vendor/gsap.min.js`; ZIP install: `{{SKILL_DIR}}/assets/gsap.min.js`; SHA-256 checked) — pass that absolute path to agents — or `https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js`.
 - Learned kit code (`{{DATA_DIR}}/learned/<slug>/kit/*.js`) loads after the built-in kits; brand/learned/transcript strings reach HTML only as text (`textContent`), never as markup.
 - Animate transform/opacity/filter only. Seek-safe: no `Math.random` without a seed, no `repeat:-1`.
 - Max 2 text blocks + 1 object on screen. Min text size 2.2 % H (~42 px at 1920) for body, 5 % H for hero.

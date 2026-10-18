@@ -27,7 +27,7 @@ Output = **reusable knowledge in `{{DATA_DIR}}`**: a style card, new techniques,
 
 ## Inputs it accepts
 - **Video file or folder** (the user's own disk) — a whole edit style or one MG moment.
-- **YouTube / Instagram / TikTok link** (needs `yt-dlp`) — default: a low-res copy (≤ 480p) + subtitles, measured then deleted at once; kept: the json, the subtitles and one 12-frame sheet (`learn.py <slug> <url>`). The full video is downloaded only after the user's explicit yes («أحتاج تنزيل الفيديو كاملًا للتحليل ثم أحذفه، موافق؟») → `learn.py <slug> <url> --full`. Deleted after analysis either way.
+- **YouTube / Instagram / TikTok link** (needs `yt-dlp`: if `setup.py check` › `optional.yt-dlp.ok` is false, ask once «للتعلّم من الروابط أحتاج أداة yt-dlp، أثبّتها؟» → on yes `setup.py install-ytdlp`; on no, ask the user to download the video themselves and give the file) — default: a low-res copy (≤ 480p) + subtitles, measured then deleted at once; kept: the json, the subtitles and one 12-frame sheet (`learn.py <slug> <url>`). The full video is downloaded only after the user's explicit yes («أحتاج تنزيل الفيديو كاملًا للتحليل ثم أحذفه، موافق؟») → `learn.py <slug> <url> --full`. Deleted after analysis either way.
 - **Images**: screenshots, boards, a caption frame → look, palette, typography, layout.
 - **A link to an MG website** → `references/learn-sources.md`.
 - **Code or a description** of a move (HTML/GSAP/CSS/AE expression) → a technique to re-write into our kit.
