@@ -3,83 +3,410 @@
   "$id": "montage-crew/profile.schema.json",
   "title": "montage-crew user profile",
   "type": "object",
-  "required": ["schema_version", "created", "updated", "editor", "format", "footage", "voice", "language", "brand", "mode", "paths", "detected"],
+  "required": [
+    "schema_version",
+    "created",
+    "updated",
+    "editor",
+    "format",
+    "footage",
+    "voice",
+    "language",
+    "style_prefs",
+    "brand",
+    "mode",
+    "paths",
+    "detected"
+  ],
   "additionalProperties": false,
   "properties": {
-    "schema_version": { "const": 1 },
-    "created": { "type": "string", "format": "date-time" },
-    "updated": { "type": "string", "format": "date-time" },
-    "editor": { "enum": ["resolve_free", "resolve_studio", "premiere", "none"] },
+    "schema_version": {
+      "const": 2
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "editor": {
+      "enum": [
+        "resolve_free",
+        "resolve_studio",
+        "premiere",
+        "after_effects",
+        "capcut",
+        "final_cut",
+        "none"
+      ]
+    },
     "resolve_live": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["enabled"],
+      "required": [
+        "enabled"
+      ],
       "properties": {
-        "enabled": { "type": "boolean" },
-        "python": { "type": ["string", "null"] },
-        "mcp_dir": { "type": ["string", "null"] }
+        "enabled": {
+          "type": "boolean"
+        },
+        "python": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mcp_dir": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
-    "format": { "enum": ["9x16", "16x9", "both"] },
-    "footage": { "enum": ["camera", "screen", "none"] },
+    "format": {
+      "enum": [
+        "9x16",
+        "16x9",
+        "both"
+      ]
+    },
+    "footage": {
+      "enum": [
+        "camera",
+        "screen",
+        "none",
+        "mixed"
+      ]
+    },
     "voice": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "ai_provider", "ai_key_env", "ai_voice_id"],
+      "required": [
+        "kind",
+        "ai_provider",
+        "ai_key_env",
+        "ai_voice_id"
+      ],
       "properties": {
-        "kind": { "enum": ["own", "ai", "music"] },
-        "ai_provider": { "type": ["string", "null"], "maxLength": 40 },
-        "ai_key_env": { "type": ["string", "null"], "pattern": "^[A-Z][A-Z0-9_]{1,63}$" },
-        "ai_voice_id": { "type": ["string", "null"], "maxLength": 120 }
+        "kind": {
+          "enum": [
+            "own",
+            "ai",
+            "music"
+          ]
+        },
+        "ai_provider": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 40
+        },
+        "ai_key_env": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+        },
+        "ai_voice_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 120
+        }
       }
     },
     "language": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["dialect", "dialect_note", "set_words", "digits"],
+      "required": [
+        "dialect",
+        "dialect_note",
+        "set_words",
+        "digits"
+      ],
       "properties": {
-        "dialect": { "enum": ["iraqi", "gulf", "levantine", "egyptian", "maghrebi", "sudanese", "yemeni", "msa", "other"] },
-        "dialect_note": { "type": "string", "maxLength": 300 },
-        "set_words": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 40 }, "maxItems": 30 },
-        "digits": { "enum": ["western", "arabic_indic"] }
+        "dialect": {
+          "enum": [
+            "iraqi",
+            "gulf",
+            "levantine",
+            "egyptian",
+            "maghrebi",
+            "sudanese",
+            "yemeni",
+            "msa",
+            "other"
+          ]
+        },
+        "dialect_note": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "set_words": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "maxItems": 30
+        },
+        "digits": {
+          "enum": [
+            "western",
+            "arabic_indic"
+          ]
+        }
+      }
+    },
+    "style_prefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "looks",
+        "caption_style",
+        "caption_scheme",
+        "motion_personality",
+        "liked_refs",
+        "default_style"
+      ],
+      "properties": {
+        "looks": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "maxLength": 60
+          }
+        },
+        "caption_style": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 60
+        },
+        "caption_scheme": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 60
+        },
+        "motion_personality": {
+          "enum": [
+            "smooth",
+            "snappy",
+            "premium",
+            null
+          ]
+        },
+        "liked_refs": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "default_style": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+        }
       }
     },
     "brand": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["bg", "text", "accent", "font_head", "font_body", "logo", "handle", "cta"],
+      "required": [
+        "has_brand",
+        "name",
+        "colors",
+        "fonts",
+        "logo",
+        "handle",
+        "cta",
+        "tone",
+        "source"
+      ],
       "properties": {
-        "bg": { "type": ["string", "null"], "pattern": "^#[0-9A-Fa-f]{6}$" },
-        "text": { "type": ["string", "null"], "pattern": "^#[0-9A-Fa-f]{6}$" },
-        "accent": { "type": ["string", "null"], "pattern": "^#[0-9A-Fa-f]{6}$" },
-        "font_head": { "type": ["string", "null"], "maxLength": 300 },
-        "font_body": { "type": ["string", "null"], "maxLength": 300 },
-        "logo": { "type": ["string", "null"], "maxLength": 500 },
-        "handle": { "type": "string", "maxLength": 80 },
-        "cta": { "type": "string", "maxLength": 120 }
+        "has_brand": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "colors": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "bg",
+            "text",
+            "accent",
+            "extra"
+          ],
+          "properties": {
+            "bg": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^#[0-9A-Fa-f]{6}$"
+            },
+            "text": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^#[0-9A-Fa-f]{6}$"
+            },
+            "accent": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^#[0-9A-Fa-f]{6}$"
+            },
+            "extra": {
+              "type": "array",
+              "maxItems": 8,
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              }
+            }
+          }
+        },
+        "fonts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "head",
+            "body"
+          ],
+          "properties": {
+            "head": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 300
+            },
+            "body": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 300
+            }
+          }
+        },
+        "logo": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
+        },
+        "handle": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "cta": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "tone": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
+        }
       }
     },
-    "mode": { "enum": ["fast", "pro"] },
+    "mode": {
+      "enum": [
+        "fast",
+        "pro"
+      ]
+    },
     "paths": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["work_dir", "output_dir"],
+      "required": [
+        "work_dir",
+        "output_dir"
+      ],
       "properties": {
-        "work_dir": { "type": "string", "minLength": 1 },
-        "output_dir": { "type": "string", "minLength": 1 }
+        "work_dir": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output_dir": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "detected": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["os", "gpu", "ffmpeg", "python", "node", "at"],
+      "required": [
+        "os",
+        "gpu",
+        "ffmpeg",
+        "python",
+        "node",
+        "at"
+      ],
       "properties": {
-        "os": { "enum": ["windows", "macos"] },
-        "gpu": { "enum": ["cuda", "apple", "none"] },
-        "ffmpeg": { "type": "string" },
-        "python": { "type": "string" },
-        "node": { "type": "string" },
-        "at": { "type": "string", "format": "date-time" }
+        "os": {
+          "enum": [
+            "windows",
+            "macos"
+          ]
+        },
+        "gpu": {
+          "enum": [
+            "cuda",
+            "apple",
+            "none"
+          ]
+        },
+        "ffmpeg": {
+          "type": "string"
+        },
+        "python": {
+          "type": "string"
+        },
+        "node": {
+          "type": "string"
+        },
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     }
   }
