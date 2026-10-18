@@ -8,7 +8,7 @@ Used when `profile.mode = pro` (or the user asks for the team on one video). You
 | Agent | Spawned when | Owns (writes only here) | Delivers |
 |---|---|---|---|
 | `mc-cutter` (critical path) | footage = camera / screen / mixed | `<work>/raw/words.json`, `raw/transcript.txt`, `<work>/cut/` | proof-read transcript, retakes/set words removed, `cut.mp4` + FINAL `words_cut.json`, `script.txt` |
-| `mc-writer` | footage = none | `<work>/script/` | script in the dialect, voice file (own recording guide / AI voice / none), `voice.wav`, then `words.json` + `cut/words_cut.json` timing |
+| `mc-writer` | footage = none | `<work>/script/`, `audio/tts_v<n>.wav` (AI voice) | script in the dialect, voice file (own recording guide / AI voice / none), `voice.wav`, then `words.json` + `cut/words_cut.json` timing |
 | `mc-scout` ×2 (S1 + S2) | always | `<work>/_team/scout.md` (S1), `_team/scout2.md` (S2), `<work>/assets/` (S1: `logos/ ui/`, S2: `icons/ mockups/ img/ fx/`) | S1: footage/audio intake, then assets of everything NAMED; S2: generic assets for the beats |
 | `mc-picture` | footage = camera / screen / mixed | `<work>/picture/` | `speaker_v1.mov` (matte, camera only), `zones/zones.json`, `framing.json` (zoom moves + recording crops), optional plate |
 | `mc-audio` | always | `<work>/audio/` | `voice.wav`, `sfx_cues.json`, `music_v1.wav` (pre-ducked), `premix.wav` |
