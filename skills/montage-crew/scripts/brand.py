@@ -42,6 +42,7 @@ SVG_HREF = re.compile(r"(?:xlink:)?href\s*=\s*[\"']\s*([^\"']*)", re.I)
 GENERIC = {"serif", "sans-serif", "monospace", "cursive", "fantasy", "system-ui", "ui-sans-serif", "ui-serif", "ui-monospace",
            "inherit", "initial", "unset", "emoji", "math", "-apple-system", "blinkmacsystemfont", "segoe ui", "arial",
            "helvetica", "helvetica neue", "roboto", "apple color emoji", "segoe ui emoji", "noto color emoji"}
+WARN = []  # import warnings, returned in the JSON
 GFONT_HOSTS = {"fonts.googleapis.com", "fonts.gstatic.com", "raw.githubusercontent.com"}
 
 
@@ -326,7 +327,19 @@ def font_arg(v):
     name = v.strip()
     if not FONT_NAME.match(name):
         die(f"font name {v!r}: letters, digits, spaces and '-' only (max 60), or give the font file")
-    return name, None if bundled(name) else google_font(name)
+    if bundled(name):
+        return name, None
+    try:
+        dst = google_font(name)
+    except SystemExit as e:
+        dst, why = None, f"download failed ({e})"
+    else:
+        why = "not bundled, and not found on Google Fonts (or no internet)"
+    if dst is None:
+        WARN.append(f"font {name!r}: {why}; captions will use a fallback font. Give the font file instead "
+                    f"(--font-head / --font-body <file>).")
+        print("warning: " + WARN[-1], file=sys.stderr)
+    return name, dst
 
 
 # ---------- brand.json + profile ----------
@@ -479,7 +492,7 @@ def cmd_import(a):
     b["source"] = text_ok("source", ("brand.py import: " + ", ".join(sources))[:200]) if sources else b.get("source")
     b["schema"] = 1
     save(b)
-    return {"brand": b, "dir": root.as_posix(), "profile": sync(b)}
+    return {"brand": b, "dir": root.as_posix(), "profile": sync(b), "warnings": list(WARN)}
 
 
 def cmd_clear():
@@ -581,6 +594,13 @@ def selftest():
             font_arg("Evil</style>"); raise AssertionError("font name")
         except SystemExit:
             pass
+        real_gf = globals()["google_font"]
+        globals()["google_font"] = lambda name: None                       # not on Google Fonts (offline-safe)
+        try:
+            r = cmd_import(ns(font_head="NotARealFontXyz"))
+        finally:
+            globals()["google_font"] = real_gf
+        assert any("NotARealFontXyz" in w and "font file" in w for w in r["warnings"]), r["warnings"]
         # site parsing (offline: net.get is faked); colours, font names and the logo only
         page = (b'<html><head><link rel="stylesheet" href="/a.css"><link rel="icon" href="/fav.png">'
                 b'<style>body{background:#0B1020;color:#f5f5f5;font-family:"Inter",sans-serif}</style></head>'

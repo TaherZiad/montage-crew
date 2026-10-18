@@ -120,7 +120,7 @@ def download(url, slug, full=False):
     ytdlp = mc_profile.tool("yt-dlp")
     if not Path(ytdlp).is_file():
         raise SystemExit("yt-dlp is not installed, so links cannot be downloaded.\n"
-                         "  install it (setup.py tools lists the command), or download the video yourself\n"
+                         "  install it with: setup.py install-ytdlp (after the user says yes), or download the video yourself\n"
                          "  and pass the file path instead of the link.")
     inbox = safe_dir("learn", "_inbox", f"{slug}-{secrets.token_hex(4)}")
     fmt = "b/bv*+ba" if full else "b[height<=480]/bv*[height<=480]+ba/w"
@@ -236,6 +236,7 @@ def learn(slug, sources, full=False, keep_src=False):
     out = safe_dir("styles", check_slug(slug), "_measure")
     used = {p.stem.lower() for p in out.glob("*.json")}  # never overwrite an earlier measurement
     res, inboxes = [], []
+    ok = False
     try:
         for s in sources:
             p = Path(s).expanduser()
@@ -257,10 +258,17 @@ def learn(slug, sources, full=False, keep_src=False):
                 kind = f.suffix.lower()
                 res.append(measure_video(f, out, name, cut_sheet=own) if kind in VIDEO_EXT else
                            measure_image(f, out, name) if kind in IMAGE_EXT else {"source": f.name, "error": "unsupported"})
+        ok = True
     finally:
         if not keep_src:
             for d in inboxes:
                 shutil.rmtree(d, ignore_errors=True)
+        if not ok:  # a failed run leaves no empty style folder behind
+            for e in (out, out.parent):
+                try:
+                    e.rmdir()
+                except OSError:
+                    pass
     return {"slug": slug, "out": str(out), "items": res,
             "sources_kept": [str(d) for d in inboxes if d.is_dir()]}
 
@@ -271,10 +279,16 @@ def burst(slug, video, t0, t1):
         raise SystemExit(f"--burst needs a local video file: {video}")
     if not 0 <= t0 < t1:
         raise SystemExit("--burst T0 T1 needs 0 <= T0 < T1")
+    dur = probe(v)[3]
+    if not dur or t0 >= dur:
+        raise SystemExit(f"--burst {t0} is past the end of the video ({dur:.2f} s)")
+    t1 = min(t1, dur - 0.04)
+    want = int((t1 - t0) * 15) + 1
+    n = min(30, want)
     out = safe_dir("styles", check_slug(slug), "_measure")
-    n = min(30, int((t1 - t0) * 15) + 1)
     name = safe_name(f"{v.stem}_burst_{t0:.1f}", set())
-    return {"slug": slug, "burst": sheet(v, out / f"{name}.jpg", [t0 + k / 15 for k in range(n)]), "frames": n, "out": str(out)}
+    return {"slug": slug, "burst": sheet(v, out / f"{name}.jpg", [t0 + k / 15 for k in range(n)]), "frames": n,
+            "covers_s": [round(t0, 2), round(t0 + (n - 1) / 15, 2)], "capped": want > 30, "out": str(out)}
 
 
 def line_problem(l):
@@ -375,6 +389,8 @@ def styles():
     for kind, root in (("builtin", mc_profile.SKILL_DIR / "styles"), ("learned", Path(mc_profile.data_dir()) / "styles")):
         if root.is_dir():
             for d in sorted(p for p in root.iterdir() if p.is_dir() and SLUG.match(p.name)):
+                if kind == "learned" and not (d / "style.md").is_file() and not any((d / "_measure").glob("*.json")):
+                    continue  # an empty/failed run is not a style
                 look, best = header(d / "style.md")
                 out.append({"slug": d.name, "kind": kind, "look": look, "best_for": best, "has_style": (d / "style.md").is_file(),
                             "measured": len(list((d / "_measure").glob("*.json"))) if (d / "_measure").is_dir() else 0,
@@ -428,7 +444,11 @@ def selftest():
         r2 = learn("test-style", [str(v)])                      # measuring again never overwrites
         assert r2["items"][0]["json"] == "My_Ref_1_2.json", r2
         b = burst("test-style", str(v), 2.8, 3.2)
-        assert b["frames"] == 7 and (out / b["burst"]).is_file(), b
+        assert b["frames"] == 7 and (out / b["burst"]).is_file() and not b["capped"], b
+        assert burst("test-style", str(v), 0, 5.5)["capped"]
+        _expect_exit(burst, "test-style", str(v), 10, 12, has="past the end")
+        _expect_exit(learn, "t2", [str(Path(d) / "missing.mp4")], has="not found")
+        assert not (Path(d) / "data" / "styles" / "t2").exists() and "t2" not in [s["slug"] for s in styles()]
         # names: bad slugs and built-in names refused
         for bad in ("../x", "Clean", "a/b", "", "list", "check-code", "x" * 41):
             _expect_exit(check_slug, bad)

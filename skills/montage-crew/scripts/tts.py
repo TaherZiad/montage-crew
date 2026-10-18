@@ -59,7 +59,7 @@ def settings(a):
         raise SystemExit(f"voice.ai_key_env: {why}")
     voice = a.voice or (v.get("ai_voice_id") if (v.get("ai_provider") or "").lower() == provider else None) or P["voice"]
     if not voice or not re.fullmatch(P["voice_re"], voice):
-        raise SystemExit(f"--voice: a {provider} voice id is needed (pattern {P['voice_re']}); it is set in onboarding")
+        raise SystemExit(f"--voice: a voice id for {provider} is needed (pattern {P['voice_re']}); it is set in onboarding")
     model = a.model or P["model"]
     if not re.fullmatch(r"[a-z0-9_.-]{2,60}", model):
         raise SystemExit("--model: letters, digits, _ . - only")

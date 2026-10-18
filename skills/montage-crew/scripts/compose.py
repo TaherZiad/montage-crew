@@ -658,18 +658,31 @@ def export_layers(items, sfx, D, fps, out_dir):
             for e in lane:
                 n += 1
                 safe = lambda s: re.sub(r"[^\w.-]+", "_", str(s)).strip("._")[:40] or "x"
-                dst = out_dir / f"{n:02d}_{safe(e['layer'])}_{safe(pathlib.Path(e['path']).stem)}{pathlib.Path(e['path']).suffix.lower()}"
+                src = pathlib.Path(e["path"])
+                # all sound lives in the audio files: video files lose their audio, audio taken from a video -> .wav
+                strip = kind == "video" and e["info"].get("audio")
+                pull = kind == "audio" and e["info"].get("video")
+                ext = ".wav" if pull else src.suffix.lower()
+                dst = out_dir / f"{n:02d}_{safe(e['layer'])}_{safe(src.stem)}{ext}"
                 if dst.exists():
                     dst.unlink()
-                try:
-                    os.link(e["path"], dst)
-                except OSError:
-                    shutil.copy2(e["path"], dst)
+                if strip or pull:
+                    args = ["-an", "-c", "copy"] if strip else ["-vn", "-c:a", "pcm_s16le", "-ar", "48000"]
+                    r = subprocess.run([FFMPEG, "-v", "error", "-y", "-protocol_whitelist", "file,pipe", "-i", str(src),
+                                        "-map_metadata", "0", *args, str(dst)], capture_output=True, text=True)
+                    if r.returncode:
+                        raise SystemExit(f"❌ layers export: {src.name}: {r.stderr[-300:]}")
+                else:
+                    try:
+                        os.link(src, dst)
+                    except OSError:
+                        shutil.copy2(src, dst)
                 rows.append({"file": dst.name, "kind": kind, "track": f"{kind[0].upper()}{ti}",
                              "start_s": round(e["rec_in"] / fps, 3), "end_s": round(e["rec_out"] / fps, 3),
                              "source_in_s": round(e["src_in"] / fps, 3), "gain_db": e["db"] if kind == "audio" else ""})
     (out_dir / "order.txt").write_text(
-        "# bottom -> top. file<TAB>start s<TAB>end s<TAB>track. Place each file at its start on its own track.\n" +
+        "# bottom -> top. file<TAB>start s<TAB>end s<TAB>track. Place each file at its start on its own track.\n"
+        "# video files carry no sound; all sound (voice, music, sfx) is in the audio files.\n" +
         "".join(f"{r['file']}\t{r['start_s']:.3f}\t{r['end_s']:.3f}\t{r['track']}\n" for r in rows), encoding="utf-8")
     with open(out_dir / "layers.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]) if rows else ["file"])
@@ -777,6 +790,8 @@ def selftest():
         assert [o[0] for o in order][:4] == ["01_plate_plate.png", "02_aroll_aroll.mp4", "03_speaker_speaker.mov",
                                             "04_captions_captions.mov"], order
         assert len(order) == 7 and order[3][1] == "1.000" and all((lay / o[0]).is_file() for o in order), order
+        assert not probe(lay / order[1][0])["audio"] and probe(lay / order[1][0])["video"], "video files carry no sound"
+        assert order[4][0] == "05_aroll_aroll.wav" and not probe(lay / order[4][0])["video"], order[4]
         assert (lay / "layers.csv").read_text(encoding="utf-8").startswith("file,kind,track,start_s")
         # 16:9 from the same layers (contain-fit plate is fine; just size + duration)
         final16, *_ = render(work, "16x9", pathlib.Path(d) / "out" / "demo16", dur=1.0, do_master=False)

@@ -59,7 +59,9 @@ def main():
             print(f"{'  ok ' if ok else 'FAIL '}  {name:<15} {time.time() - t0:5.1f}s")
             if not ok:
                 print("        " + (r.stdout + r.stderr).strip()[-1200:].replace("\n", "\n        "))
-    print(f"\n{len(tests) - fails}/{len(tests)} passed" + ("" if not fails else f" — {fails} FAILED"))
+    ran = len(tests) - (sum(1 for t in tests if t[2]) if quick else 0)
+    print(f"\n{ran - fails}/{ran} passed" + (f" ({len(tests) - ran} skipped)" if ran < len(tests) else "")
+          + ("" if not fails else f" — {fails} FAILED"))
     sys.exit(1 if fails else 0)
 
 

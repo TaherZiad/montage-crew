@@ -94,19 +94,25 @@ def version():
         return "unknown"
 
 
+def manifest_path(data):
+    """each install kind keeps its own record, so a plugin and a ZIP install can share one data dir."""
+    return data / ("installed-plugin.json" if PLUGIN else "installed.json")
+
+
 def load_manifest(data):
     try:
-        m = json.loads((data / "installed.json").read_text(encoding="utf-8"))
-        return m if isinstance(m, dict) and isinstance(m.get("files"), list) else None
+        m = json.loads(manifest_path(data).read_text(encoding="utf-8"))
+        ok = isinstance(m, dict) and isinstance(m.get("files"), list)
+        return m if ok and m.get("install_kind", "zip") == ("plugin" if PLUGIN else "zip") else None
     except (OSError, ValueError):
         return None
 
 
 def write_manifest(data, m):
     data.mkdir(parents=True, exist_ok=True)
-    tmp = data / "installed.json.tmp"
+    tmp = manifest_path(data).with_suffix(".json.tmp")
     tmp.write_text(json.dumps(m, indent=1, ensure_ascii=False), encoding="utf-8")
-    os.replace(str(tmp), str(data / "installed.json"))
+    os.replace(str(tmp), str(manifest_path(data)))
 
 
 def is_link(p):
@@ -408,9 +414,9 @@ def cmd_uninstall(a):
     if a.purge and data in pathlib.Path(sys.executable).resolve().parents:
         say(f"ERROR: run uninstall with the system Python ({'py -3' if WIN else 'python3'}), not the venv one. Nothing removed.")
         return 1
-    m = load_manifest(data)
-    if m and (PLUGIN or m.get("install_kind") == "plugin"):
-        (data / "installed.json").unlink()
+    m = load_manifest(data)  # the record of THIS setup.py's kind only
+    if m and PLUGIN:
+        manifest_path(data).unlink()
         say("plugin install: nothing to remove outside the data folder (remove the plugin itself with /plugin).")
     elif m:
         skill = pathlib.Path(m.get("skill_dir") or SKILL)
@@ -424,12 +430,15 @@ def cmd_uninstall(a):
             write_manifest(data, dict(m, files=kept))
             say(f"removed montage-crew; {len(kept)} edited file(s) kept (listed above).")
         else:
-            (data / "installed.json").unlink()
+            manifest_path(data).unlink()
             say("removed montage-crew (skill folder and mc-* agents).")
     else:
-        say(f"nothing to remove: no installed.json in {data}")
+        say(f"nothing to remove: no {manifest_path(data).name} in {data}")
+    other = data / ("installed.json" if PLUGIN else "installed-plugin.json")
+    if a.purge and other.is_file():
+        say(f"note: the other install ({'ZIP' if PLUGIN else 'plugin'}) also uses {data}; --purge removes its data too.")
     if a.purge and data.is_dir():
-        if not (m or data.name == ".montage-crew" or (data / "profile.json").is_file()):
+        if not (m or other.is_file() or data.name == ".montage-crew" or (data / "profile.json").is_file()):
             say(f"not purging {data}: it does not look like a montage-crew data folder.")
             return 1
         shutil.rmtree(str(data), onerror=_force_rm)
@@ -480,15 +489,22 @@ def selftest():
         env = dict(os.environ, MONTAGE_CREW_HOME=str(data), PYTHONIOENCODING="utf-8")
         go = lambda *x: subprocess.run([sys.executable, str(sk / "scripts" / "setup.py"), *x, "--claude-home", str(home)],
                                        env=env, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        data.mkdir()
+        zip_rec = json.dumps({"name": NAME, "install_kind": "zip", "files": [{"path": str(d / "zip" / "x"), "sha256": "0"}]})
+        (data / "installed.json").write_text(zip_rec, encoding="utf-8")   # a ZIP install sharing the data dir (BUG-V2-01)
         r = go("install", "--offline", "--no-venv", "--no-selftest")
-        assert r.returncode == 0, r.stdout + r.stderr
-        m = json.loads((data / "installed.json").read_text(encoding="utf-8"))
+        assert r.returncode == 0 and "outside montage-crew" not in r.stdout, r.stdout + r.stderr
+        assert (data / "installed.json").read_text(encoding="utf-8") == zip_rec, "the ZIP record must stay untouched"
+        m = json.loads((data / "installed-plugin.json").read_text(encoding="utf-8"))
         assert m["install_kind"] == "plugin" and m["version"] == "9.9.9" and m["files"] == [], m
         st = json.loads(go("check").stdout)
         assert st["install_kind"] == "plugin" and st["agents"]["provided_by"] == "plugin" and st["placeholders_left"] == []
         assert st["installed"] and st["assets"]["gsap_path"].endswith("/vendor/gsap.min.js") and "yt-dlp" in st["optional"]
+        r = go("uninstall")
+        assert r.returncode == 0 and not (data / "installed-plugin.json").exists(), r.stdout
+        assert (data / "installed.json").read_text(encoding="utf-8") == zip_rec, "plugin uninstall left the ZIP record"
         r = go("uninstall", "--purge")
-        assert r.returncode == 0 and not data.exists(), r.stdout
+        assert r.returncode == 0 and not data.exists() and "other install" in r.stdout, r.stdout
         assert snap() == before, set(snap().items()) ^ set(before.items())
         assert not (home / "agents").exists() and not list(root.rglob("__pycache__")) and not list(root.rglob("data_dir.txt"))
     print("selftest ok")

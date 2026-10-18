@@ -180,7 +180,8 @@ def migrate(path=None):
             dropped.append(item)
             print(f"warning: profile {item['field']} reset ({item['why']})", file=sys.stderr)
     save(new, p)
-    return {"migrated": True, "backup": str(bak), "dropped": dropped, "ask": ask(p)}
+    reask = [x["field"] for x in dropped if x["field"] in ASK]  # a reset answer is asked again (only via this result)
+    return {"migrated": True, "backup": str(bak), "dropped": dropped, "ask": ask(p) + [f for f in reask if f not in ask(p)]}
 
 
 def canvas(fmt=None, profile=None):
@@ -423,6 +424,11 @@ def selftest():
             m = json.loads(f.read_text(encoding="utf-8"))
             got = {x["field"] for x in r["dropped"]}
             assert got == {"brand.colors.bg", "brand.logo", "brand.handle", "voice.ai_key_env"}, r
+            v1b = dict(v1, format="vertical", brand={})
+            f.write_text(json.dumps(v1b), encoding="utf-8")
+            r2 = migrate(f)
+            assert "format" in r2["ask"] and json.loads(f.read_text(encoding="utf-8"))["format"] == "9x16", r2
+            f.write_text(json.dumps(v1), encoding="utf-8"); r = migrate(f)
             assert m["brand"]["fonts"]["head"] == "My Font" and m["brand"]["cta"] == "ok" and validate(f) == [], validate(f)
             assert next(x for x in r["dropped"] if x["field"] == "brand.logo")["old_value"] == "C:/elsewhere/logo.png"
             assert m["voice"]["ai_key_env"] is None and not any("old_value" in x for x in r["dropped"] if x["field"].startswith("voice"))
