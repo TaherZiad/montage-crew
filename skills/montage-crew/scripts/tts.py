@@ -1,6 +1,6 @@
-"""AI voice-over: script text -> <work>/audio/voice.wav (48 kHz) with ElevenLabs (default) or OpenAI.
+"""AI voice-over: script text -> <work>/audio/tts_v1.wav (48 kHz; a redo = tts_v2.wav; audio/voice.wav belongs to mc-audio) with ElevenLabs (default) or OpenAI.
 
-  python tts.py <script.txt|-> --out <work>/audio/voice.wav [--provider elevenlabs|openai] [--voice ID] [--model M]
+  python tts.py <script.txt|-> --out <work>/audio/tts_v1.wav [--provider elevenlabs|openai] [--voice ID] [--model M]
   python tts.py <script.txt|-> --out ... --dry-run     character count + which key variable, NO call, nothing sent
   python tts.py --selftest                            offline (the provider is faked)
 
@@ -148,7 +148,7 @@ def selftest():
                 return mp3.read_bytes()
             real, _post = _post, fake
             try:
-                r = speak(text, d / "audio" / "voice.wav", prov, env, voice, model)
+                r = speak(text, d / "audio" / "tts_v1.wav", prov, env, voice, model)
             finally:
                 _post = real
             assert seen["url"] == "https://api.elevenlabs.io/v1/text-to-speech/AbCdEf1234567890?output_format=mp3_44100_128"
@@ -206,7 +206,7 @@ def main():
                "limit": PROVIDERS[provider]["limit"], "key_env": env, "key_set": bool(os.environ.get(env)), "sent": False}
     else:
         if not a.out:
-            raise SystemExit("--out <work>/audio/voice.wav is required")
+            raise SystemExit("--out <work>/audio/tts_v1.wav is required")
         res = speak(text, a.out, provider, env, voice, model)
     print(json.dumps(res, ensure_ascii=False))
 
