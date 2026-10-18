@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "montage-crew",
+  "description": "montage-crew: Arabic short-video editing plugin for Claude Code, by Eng. Taher.",
+  "owner": { "name": "Eng. Taher", "url": "https://eng-taher.vercel.app" },
+  "plugins": [
+    {
+      "name": "montage-crew",
+      "version": "2.0.0",
+      "source": "./",
+      "description": "Arabic reels/TikTok/YouTube editor: captions, motion graphics, SFX, brand kit, learns from you.",
+      "homepage": "https://eng-taher.vercel.app/skills/montage-crew",
+      "keywords": ["video", "arabic", "reels", "motion-graphics"]
+    }
+  ]
+}

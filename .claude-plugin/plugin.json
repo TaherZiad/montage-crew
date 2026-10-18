@@ -1,0 +1,9 @@
+{
+  "name": "montage-crew",
+  "version": "2.0.0",
+  "description": "Arabic short-video editor for Claude Code: edits talking-head, screen-recording or idea-only videos with Arabic RTL captions, premium motion graphics, SFX and a -14 LUFS master. Asks your setup once, keeps your brand, learns your corrections and the styles you teach it.",
+  "author": { "name": "Eng. Taher", "url": "https://eng-taher.vercel.app" },
+  "homepage": "https://eng-taher.vercel.app/skills/montage-crew",
+  "license": "SEE LICENSE IN LICENSE",
+  "keywords": ["video", "editing", "arabic", "reels", "tiktok", "motion-graphics", "captions", "davinci-resolve", "premiere", "after-effects", "hyperframes"]
+}
