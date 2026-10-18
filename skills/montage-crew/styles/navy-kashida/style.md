@@ -1,6 +1,7 @@
 # navy-kashida — painted navy, cream kashida titles, glass arch and liquid tag
 best for: authority/explainer talking heads, finance, education, calm premium
-kind: look · source: built-in (style-dna B) · learned: built-in · learn focus: whole edit
+kind: look · learned: built-in · learn focus: whole edit
+source: built-in (style-dna B)
 
 ## Look
 palette: bg #00213C (navy) · text #D0B6A1 (cream) + white · accent steel-blue 3D (measured)

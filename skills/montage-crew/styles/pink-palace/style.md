@@ -1,6 +1,7 @@
 # pink-palace — deep rose, flat white type, giant numerals behind the speaker
 best for: listicles ("5 things…"), beauty/lifestyle, storytelling sections
-kind: look · source: built-in (style-dna E) · learned: built-in · learn focus: whole edit
+kind: look · learned: built-in · learn focus: whole edit
+source: built-in (style-dna E)
 
 ## Look
 palette: bg #76445F (deep rose) · text pure white, no FX · accent magenta neon (measured)

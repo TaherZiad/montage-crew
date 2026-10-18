@@ -35,7 +35,7 @@ Assets for the actual video come from the free-for-commercial sources in `refere
 ## Procedure for one link
 1. Open it (WebFetch or browser, as the table says). Note the URL and the licence line.
 2. Decide the **one thing worth taking** (layout / type scale / colour use / a move). A move's timing: a video link → `learn.py` keyframes/subtitles (or `--burst` on a `--full` download after a yes); a GIF or animation seen in the browser → estimate frames by watching, mark `estimated`; code → read durations and eases from the text.
-3. Write it in the learn.md format, in your own words: a style card for a whole look, a technique entry (`MG-U…`) for one move. One `source: <url>` line; `licence: <what the page says>`.
+3. Write it in the learn.md format, in your own words: a style card for a whole look, a technique entry (`MG-U…`) for one move. One `source: <url>` line with nothing after the URL; `licence: <what the page says>` and `author: …` on their own lines.
 4. Re-write the move in our kit (`{{DATA_DIR}}/learned/<slug>/kit/<id>.js`): RTL-safe, seek-safe, transform/opacity/filter only, no network. Test render + sheet.
 5. Show the summary and ask before saving (learn.md step 6). Delete any fetched media (`learn.py clean <slug>`). Report in 2 lines.
 

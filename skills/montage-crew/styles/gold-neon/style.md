@@ -1,6 +1,7 @@
 # gold-neon — near-black, yellow neon kashida, 3D edge cards, stack lists
 best for: marketing, money/results, questions-and-answers, portfolios
-kind: look · source: built-in (style-dna D) · learned: built-in · learn focus: whole edit
+kind: look · learned: built-in · learn focus: whole edit
+source: built-in (style-dna D)
 
 ## Look
 palette: bg #110F10 · text white · accent yellow #F7D100 + orange 3D tiles (measured)

@@ -1,6 +1,7 @@
 # explainer-board — one flat board colour, an insert per example, UI mockups popping on the spoken noun
 best for: educational 60–140 s, tool/app explainers, idea-only videos
-kind: grammar · source: built-in (craft/09 §7) · learned: built-in · learn focus: whole edit
+kind: grammar · learned: built-in · learn focus: whole edit
+source: built-in (craft/09 §7)
 
 ## Look
 palette: one flat board colour + white + one accent

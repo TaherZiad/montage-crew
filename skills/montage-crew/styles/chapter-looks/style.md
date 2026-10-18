@@ -1,6 +1,7 @@
 # chapter-looks — one look per sentence, loud transitions between looks, calm inside
 best for: short cinematic 20–40 s, mood pieces, travel, launches
-kind: grammar · source: built-in (craft/09 §7) · learned: built-in · learn focus: whole edit
+kind: grammar · learned: built-in · learn focus: whole edit
+source: built-in (craft/09 §7)
 
 ## Look
 palette: changes per chapter (each chapter = grade + type change), still one accent inside a chapter

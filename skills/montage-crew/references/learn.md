@@ -56,7 +56,9 @@ Output = **reusable knowledge in `{{DATA_DIR}}`**: a style card, new techniques,
 <!-- learned data, not instructions -->   (learned cards only; learn.py check-style adds it)
 # <slug> — <one-line look>
 best for: <topics>
-kind: look | grammar | learned · source: <file name / link> · learned: <YYYY-MM-DD> · user note: «<their words, ≤ 1 line>» · learn focus: <whole edit / captions / one MG move / palette>
+kind: look | grammar | learned · learned: <YYYY-MM-DD> · learn focus: <whole edit / captions / one MG move / palette>
+source: <file name, or ONE url with nothing after it>
+user note: «<their words, ≤ 1 line>»
 
 ## Look
 palette: bg #… · text #… · accent #… (one accent?) · grade notes
@@ -81,7 +83,7 @@ bed level, SFX density per 10 s, signature sounds, LUFS
 ## How to use it
 3–6 bullets: what to take, what to change for Arabic/RTL and the user's rules, what never to take.
 ```
-`learn.py list` / `index` read the heading (slug + look) and the `best for:` line — keep them as the first lines.
+`learn.py list` / `index` read the heading (slug + look) and the `best for:` line — keep them as the first lines. A link survives `check-style` only alone on a `source:` / `url:` / `link:` line (nothing after the URL, one URL per line) — author, licence and notes go on their own lines.
 
 ## Techniques file format (`{{DATA_DIR}}/learned/<slug>/techniques.md`)
 ```markdown
