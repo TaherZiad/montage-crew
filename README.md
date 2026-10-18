@@ -10,7 +10,20 @@ For English, see [the English section](#english) below.
 
 ## البداية السريعة
 
-1. ثبّتها كإضافة من داخل Claude Code بأمرين، أو من ملف ZIP من الموقع. الخطوات في [INSTALL.md](INSTALL.md).
+1. ثبّتها كإضافة: اكتب هذين الأمرين داخل Claude Code:
+
+```text
+/plugin marketplace add TaherZiad/montage-crew
+/plugin install montage-crew@montage-crew
+```
+
+   أو بأمر واحد في النافذة الطرفية (يحتاج Claude Code بإصدار 2.1.275 أو أحدث):
+
+```text
+claude plugin install montage-crew --marketplace TaherZiad/montage-crew
+```
+
+   ثم أغلق Claude Code وافتحه من جديد. وتوجد أيضاً نسخة ZIP من الموقع. كل الخطوات في [INSTALL.md](INSTALL.md).
 2. اطلب أول فيديو:
 
 ```text
@@ -245,7 +258,16 @@ It asks about your setup once, keeps your brand kit, and learns from your correc
 
 ### Quick start
 You only need Claude Code beforehand.
-1. Install it as a plugin with two commands inside Claude Code, or from the ZIP on the website. Steps are in [INSTALL.md](INSTALL.md).
+1. Install it as a plugin. Inside Claude Code:
+   ```text
+   /plugin marketplace add TaherZiad/montage-crew
+   /plugin install montage-crew@montage-crew
+   ```
+   Or in one command from a terminal (needs Claude Code 2.1.275 or newer):
+   ```text
+   claude plugin install montage-crew --marketplace TaherZiad/montage-crew
+   ```
+   Then restart Claude Code. A ZIP from the website is also available. All steps are in [INSTALL.md](INSTALL.md).
 2. Say `منتجلي هذا الفيديو: <path to the video>` ("edit this video for me") or use `/montage-crew:montage`. Any wording with the same meaning works.
 
 ### Commands

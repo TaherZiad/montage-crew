@@ -28,7 +28,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 ## الخطوة 1، الطريقة 1: إضافة (plugin) — موصى بها
 
-<!-- مستودع الإضافة: TaherZiad/montage-crew — إذا تغيّر اسم المستودع، غيّره في هذا القسم فقط. -->
+<!-- مستودع الإضافة: TaherZiad/montage-crew — إذا تغيّر اسم المستودع، غيّره هنا وفي «البداية السريعة» في README.md فقط. -->
 
 افتح Claude Code واكتب هذين الأمرين، واحداً بعد الآخر:
 
@@ -42,6 +42,8 @@ curl -fsSL https://claude.ai/install.sh | bash
 ```text
 claude plugin install montage-crew --marketplace TaherZiad/montage-crew
 ```
+
+هذا الأمر يحتاج Claude Code بإصدار 2.1.275 أو أحدث (لمعرفة إصدارك: `claude --version`). إذا كان إصدارك أقدم، استخدم الأمرين في الأعلى.
 
 ثم أغلق Claude Code وافتحه من جديد. اكتب `/montage-crew:` فتظهر لك أوامر الإضافة الأربعة (مشروحة في [README.md](README.md#الأوامر)).
 
@@ -261,7 +263,7 @@ There are two ways to install: as a **plugin** inside Claude Code (easiest, upda
 **You need only Claude Code**, installed and signed in. If you don't have it: `irm https://claude.ai/install.ps1 | iex` (Windows PowerShell) or `curl -fsSL https://claude.ai/install.sh | bash` (macOS Terminal).
 
 ### Step 1, way 1: plugin (recommended)
-Run the commands from [the Arabic plugin section](#plugin) above: `/plugin marketplace add …` then `/plugin install montage-crew@montage-crew` inside Claude Code, or the one-step `claude plugin install montage-crew --marketplace …` in a terminal. Restart Claude Code; type `/montage-crew:` to see the four commands. The plugin ships the pro-mode agents as `montage-crew:mc-*`, so nothing is copied to `~/.claude/agents/`.
+Run the commands from [the Arabic plugin section](#plugin) above: `/plugin marketplace add …` then `/plugin install montage-crew@montage-crew` inside Claude Code, or the one-step `claude plugin install montage-crew --marketplace …` in a terminal (needs Claude Code 2.1.275 or newer, check with `claude --version`; otherwise use the two commands). Restart Claude Code; type `/montage-crew:` to see the four commands. The plugin ships the pro-mode agents as `montage-crew:mc-*`, so nothing is copied to `~/.claude/agents/`.
 
 ### Step 1, way 2: ZIP from the website
 Download `montage-crew.zip` from https://eng-taher.vercel.app/skills/montage-crew.
