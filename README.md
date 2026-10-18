@@ -146,7 +146,7 @@ claude plugin install montage-crew --marketplace TaherZiad/montage-crew
 - **DaVinci Resolve:** ملف `timeline.xml` ومجلد `media/`. قبل الاستيراد اضبط معدل الإطارات للمشروع على 30 من File › Project Settings، ثم File › Import › Timeline واختر `timeline.xml`.
 - **Premiere Pro:** نفس الملف `timeline.xml`. استخدم File › Import.
 - **After Effects:** سكربت `ae_import.jsx` ومجلد `media/`. السكربت يبني لك التركيبة (composition) بكل الطبقات. من After Effects: File › Scripts › Run Script File واختر الملف. لا تحتاج إلى تفعيل خيار «Allow Scripts to Write Files and Access Network».
-- **CapCut و Final Cut Pro:** الفيديو النهائي، ومجلد `project/layers/` فيه الطبقات الشفافة (الترجمة والموشن) مرقّمة، وملف `order.txt` يشرح ترتيبها فوق الفيديو.
+- **CapCut و Final Cut Pro:** الفيديو النهائي، ومجلد `project/layers/` فيه الطبقات الشفافة (الترجمة والموشن) مرقّمة، وملف `order.txt` يشرح ترتيبها فوق الفيديو. ملفات الفيديو في هذا المجلد بدون صوت، وكل الصوت (الكلام والموسيقى والمؤثرات) يأتي في ملفات `.wav` منفصلة، حتى لا يتكرر الصوت.
 - إذا ظهرت مقاطع بحالة «offline»: انقر بالزر الأيمن › Relink واختر مجلد `project/media/`.
 
 ### الطريقة 2: وضع Resolve المباشر (اختياري)
@@ -295,7 +295,7 @@ Say «احفظ هويتي» or use `/montage-crew:brand` and give it your logo, 
 1. **Final video + files for your editor (everyone).** You always get `final.mp4` (H.264, AAC 48 kHz, −14 LUFS), an `.srt`, a `.txt` transcript and a cover image. With an editor you also get `project/` with every layer separate:
    - **DaVinci Resolve / Premiere Pro:** `timeline.xml` + `media/`. In Resolve, set the project frame rate to 30 in File › Project Settings, then File › Import › Timeline. In Premiere, use File › Import.
    - **After Effects:** `ae_import.jsx` + `media/`. The script builds the composition with every layer. Run it from File › Scripts › Run Script File; you do not need to enable "Allow Scripts to Write Files and Access Network".
-   - **CapCut / Final Cut Pro:** the final video plus `project/layers/` with numbered transparent layers (captions, motion graphics) and an `order.txt` that says how to stack them.
+   - **CapCut / Final Cut Pro:** the final video plus `project/layers/` with numbered transparent layers (captions, motion graphics) and an `order.txt` that says how to stack them. The video files there are silent; all sound (voice, music, SFX) comes as separate `.wav` files, so nothing plays twice.
    - Offline clips: right-click › Relink › choose `project/media/`.
 2. **LIVE Resolve mode (optional).** The skill builds the timeline inside an open DaVinci Resolve, layer by layer, and keeps your own edits. It needs the open-source davinci-resolve-mcp bridge (MIT, third-party), which you install yourself; see [INSTALL.md](INSTALL.md#live-resolve-mode-optional). It works on Resolve free 21.1 through the Lua tab of the Console, and on Studio. Warning: while the bridge runs, programs on your computer can control Resolve, so start it only while editing and close it afterwards. If the bridge fails, the skill falls back to path 1 and tells you in one line.
 
