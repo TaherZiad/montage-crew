@@ -14,6 +14,7 @@ TESTS = [  # (name, command, heavy)
     ("net", PY + ["net.py", "--selftest"], False),
     ("brand", PY + ["brand.py", "--selftest"], False),
     ("learn", PY + ["learn.py", "--selftest"], False),
+    ("tts", PY + ["tts.py", "--selftest"], False),
     ("fetch_assets", PY + ["fetch_assets.py", "--selftest"], False),
     ("story", PY + ["story.py", "--selftest"], False),
     ("transcribe", PY + ["transcribe.py", "--selftest"], False),
