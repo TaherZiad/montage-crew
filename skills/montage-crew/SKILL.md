@@ -11,10 +11,11 @@ Target level: agency-grade Arabic videos where **text, images, icons, shapes and
 
 ## 0. Start here — every request
 0. **Paths and setup (before anything else).**
-   - **Two install kinds, one text.** *Plugin* (`/plugin install montage-crew@montage-crew`): the skill lives in Claude Code's plugin cache, which is replaced on every update — so the `{{…}}` placeholders in these files stay **literal forever** and nothing is ever written there. *ZIP* (unzipped into `~/.claude/skills/montage-crew`): `setup.py install` fills them in place. Either way, if you see a literal `{{…}}`, resolve it yourself:
-     - `{{SKILL_DIR}}` = the folder that contains this SKILL.md (absolute path).
-     - `{{DATA_DIR}}` = `$MONTAGE_CREW_HOME` if set, else `~/.montage-crew` (absolute). All user data lives here: profile, rules, brand kit, learned styles, venv, models (and GSAP in plugin installs: `{{DATA_DIR}}/vendor/gsap.min.js`).
-     - `{{PY}}` = `{{DATA_DIR}}/venv/Scripts/python.exe` (Windows) or `{{DATA_DIR}}/venv/bin/python` (macOS/Linux) once it exists — before that, the system Python (`py -3` on Windows, `python3` elsewhere).
+   - **Two install kinds, one text.** *Plugin* (`/plugin install montage-crew@montage-crew`): the skill lives in Claude Code's plugin cache, which is replaced on every update — so the `{{…}}` placeholders in these files stay **literal forever** and nothing is ever written there. *ZIP* (unzipped into `~/.claude/skills/montage-crew`): `setup.py install` fills them in place. Either way, if you still see a placeholder (SKILL_DIR, DATA_DIR or PY in double curly braces), resolve it yourself:
+     - SKILL_DIR = the folder that contains this SKILL.md (absolute path).
+     - DATA_DIR = `$MONTAGE_CREW_HOME` if set, else `~/.montage-crew` (absolute). All user data lives here: profile, rules, brand kit, learned styles, venv, models (and GSAP in plugin installs: `<DATA_DIR>/vendor/gsap.min.js`).
+     - PY = `<DATA_DIR>/venv/Scripts/python.exe` (Windows) or `<DATA_DIR>/venv/bin/python` (macOS/Linux) once it exists — before that, the system Python (`py -3` on Windows, `python3` elsewhere).
+     (These three lines are written without the placeholder braces on purpose, so a ZIP install leaves them as they are.)
      - Fastest: `<python> {{SKILL_DIR}}/scripts/mc_profile.py path` prints the three resolved absolute paths; `setup.py check` prints them too (with `install_kind` and `assets.gsap_path`).
      - **Every dispatch prompt and every command you run uses the resolved ABSOLUTE paths** — agents don't see this section; never hand them a literal `{{…}}`. All relative paths in this skill (`references/…`, `assets/…`, `scripts/…`, `templates/…`, `styles/…`) are relative to `{{SKILL_DIR}}`.
    - **Team agents' names**: plugin install → `montage-crew:mc-cutter`, `montage-crew:mc-scout`, … ; ZIP install → `mc-cutter`, `mc-scout`, … Use whichever exists in your Agent tool's list (`references/team.md`).
