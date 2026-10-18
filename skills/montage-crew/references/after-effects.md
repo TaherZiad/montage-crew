@@ -6,11 +6,11 @@ What the project folder holds (`<out>/project/`):
 | Editor | Files | Made by |
 |---|---|---|
 | After Effects | `ae_import.jsx` + `media/` (A-roll, speaker matte, captions, one MG clip per beat — ProRes 4444 with alpha — voice, music, SFX) | `compose.py … --ae` |
-| CapCut / Final Cut | `layers/` (numbered files `01_aroll.mp4`, `02_speaker.mov`, `03_captions.mov`, `10_b02.mov`, … voice/music/SFX as `.wav`) + `order.txt` (track order bottom→top and the start time of every file) | `compose.py … --layers-out` |
+| CapCut / Final Cut | `layers/NN_<layer>_<name>.<ext>` (01 = bottom; video layers first, then audio: voice, music, SFX) + `order.txt` (one line per file: `file⇥start s⇥end s⇥track`) + `layers.csv` (file, kind, track, start_s, end_s, source_in_s, gain_db) | `compose.py … --layers-out` |
 
 ## After Effects
 1. Open After Effects › New Project. **File › Scripts › Run Script File…** → choose `project/ae_import.jsx`.
-2. The script imports `media/` and builds one composition (1080×1920 or 1920×1080, 30 fps) with every layer at its time, in the right order (plate → behind graphics → speaker → captions → motion graphics; audio at the bottom).
+2. The script imports `media/` and builds one composition (named after the video; 1080×1920 or 1920×1080, 30 fps, full duration) with every layer at its start and duration, bottom → top (plate → behind graphics → speaker → captions → motion graphics). The A-roll keeps its sound, other video layers are muted, music/SFX sit at their gain. Zooms come in as Scale/Position keyframes (linear; select them › F9 Easy Ease for softer moves). Missing media → one alert listing the files.
 3. If a file shows as missing: right-click it in the Project panel › Replace Footage › File… and point to `project/media/` (names unchanged).
 4. Export: Composition › Add to Render Queue (or Adobe Media Encoder) → H.264, AAC 48 kHz. For the same loudness as the skill's master: `{{PY}} {{SKILL_DIR}}/scripts/master.py <export.mp4> <final.mp4>` (−14 LUFS / ≤ −1.5 dBTP).
 - The import does **not** need the preference "Allow Scripts to Write Files and Access Network" — leave it OFF. If After Effects asks for it, stop and tell the skill (the script only imports files and creates layers).
@@ -18,7 +18,7 @@ What the project folder holds (`<out>/project/`):
 
 ## CapCut (desktop)
 1. New project. Import the whole `project/layers/` folder.
-2. Drag the files onto the timeline in the order of `order.txt` (first line = lowest track): the A-roll on the main track, then each `.mov` on its own overlay track at the start time written next to it (in seconds). Audio files on audio tracks.
+2. Drag the files onto the timeline in the order of `order.txt` (first line = lowest track): the A-roll on the main track, then each `.mov` on its own overlay track from its start to its end time (seconds). Audio files on audio tracks; `layers.csv` gives each one's gain in dB.
 3. The `.mov` layers have transparency; CapCut shows them over the video with no extra setting. If a layer looks black, it was imported as a plain video — re-import it from the folder.
 4. Project ratio 9:16 (or 16:9), 30 fps. Export 1080p, 30 fps. The mastered `<title>.mp4` is already there if no changes are needed.
 
