@@ -22,7 +22,7 @@ def main(argv=None):
         sys.exit(__doc__)
     tiles = []
     for t in times:
-        png = subprocess.run([FFMPEG, "-v", "error", "-ss", f"{t}", "-i", src, "-frames:v", "1", "-vf", "scale=360:-2",
+        png = subprocess.run([FFMPEG, "-v", "error", "-protocol_whitelist", "file,pipe", "-ss", f"{t}", "-i", src, "-frames:v", "1", "-vf", "scale=360:-2",
                               "-f", "image2pipe", "-vcodec", "png", "-"], capture_output=True).stdout
         im = Image.open(io.BytesIO(png)).convert("RGB") if png else Image.new("RGB", (360, 640), (40, 0, 0))
         d = ImageDraw.Draw(im)
