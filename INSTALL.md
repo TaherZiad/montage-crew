@@ -106,7 +106,7 @@ test -f ~/.claude/skills/montage-crew/SKILL.md && echo ok
 منتجلي هذا الفيديو: <مسار الفيديو>
 ```
 
-أو، إذا ثبّتها كإضافة، `/montage-crew:montage <مسار الفيديو>`. وإذا لم يكن عندك فيديو، اكتب الفكرة فقط: «ما عندي فيديو، الفكرة: …».
+أو، إذا ثبّتها كإضافة، `/montage-crew:montage <مسار الفيديو>`. وإذا لم يكن عندك فيديو، اكتب الفكرة فقط: «ما عندي فيديو، عندي فكرة: …».
 
 في هذا الاستخدام الأول تفعل المهارة ما يلي، بالترتيب:
 
@@ -115,11 +115,10 @@ test -f ~/.claude/skills/montage-crew/SKILL.md && echo ok
 3. **تجهّز ما تحتاجه:** بيئة Python الخاصة بها في `~/.montage-crew/`، والنماذج (Whisper حتى 3.1 GB، ونموذج فصل الخلفية حوالي 15 MB، ومكتبة GSAP حوالي 73 KB). قبل كل تنزيل كبير تعرض حجمه وتنتظر موافقتك، وبعده تفحص البصمة SHA-256.
 4. **تسألك أسئلة الإعداد** مرة واحدة فقط (4 أسئلة كحد أقصى في كل رسالة، ولكل سؤال جواب افتراضي):
    - برنامج المونتاج: لا شيء، أو DaVinci Resolve، أو Premiere Pro، أو After Effects، أو CapCut، أو Final Cut Pro.
-   - هل تصوّر نفسك؟ أمام الكاميرا، أو تسجيل شاشة، أو الاثنان، أو بدون تصوير.
-   - صوتك، أو صوت ذكاء اصطناعي، أو موسيقى فقط.
-   - الأساليب التي تحبها (شكل الترجمة، وطابع الحركة، وروابط صناع محتوى يعجبك أسلوبهم).
-   - هويتك البصرية (الشعار، والألوان، والخطوط، واسم الحساب) — اختياري، وتُحفظ مرة واحدة.
-   - مقاس الفيديو، واللهجة وكلمات الإعادة، وشكل الأرقام، وطريقة العمل (سريع أو احترافي)، والمجلدات.
+   - مقاس الفيديو، وهل تصوّر فيديوهاتك بنفسك (أمام الكاميرا، أو تسجيل شاشة، أو الاثنان، أو بدون تصوير)، وطريقة العمل (سريع أو احترافي).
+   - صوتك، أو صوت ذكاء اصطناعي، أو موسيقى فقط، ثم اللهجة وكلمات الإعادة وشكل الأرقام.
+   - الأساليب التي تحبها: أساليب جاهزة، وشكل الترجمة، وطابع الحركة، وروابط صناع محتوى يعجبك أسلوبهم.
+   - هويتك البصرية (الشعار، والألوان، والخطوط، أو رابط موقعك)، أو «اقترح لي هوية» — اختياري، وتُحفظ مرة واحدة. ثم المجلدات.
 
    القائمة الكاملة مع الافتراضيات في [README.md](README.md#أول-تشغيل-أسئلة-الإعداد).
 5. **تبدأ المونتاج** مباشرة بعد أن تقول «نعم» للملخص.
@@ -182,7 +181,7 @@ test -f ~/.claude/skills/montage-crew/SKILL.md && echo ok
 
 يدوياً يمكنك فك الإصدار الجديد فوق القديم مباشرة، أو حذف المجلد القديم `~/.claude/skills/montage-crew/` أولاً. الطريقتان صحيحتان. في الاستخدام التالي تلاحظ المهارة الإصدار الجديد وتعيد التجهيز وحدها (ومنه تحديث وكلاء `mc-*`).
 
-في الحالتين، بياناتك محفوظة خارج مجلد المهارة، في `~/.montage-crew/`: إعدادك، وقواعدك، وهويتك البصرية، والأساليب التي علّمتها لها، والنماذج. التحديث لا يمسها أبداً. إعدادات الإصدار 1 تُنقل إلى صيغة الإصدار 2 تلقائياً مع الإبقاء على كل إجاباتك.
+في الحالتين، بياناتك محفوظة خارج مجلد المهارة، في `~/.montage-crew/`: إعدادك، وقواعدك، وهويتك البصرية، والأساليب التي علّمتها لها، والنماذج. التحديث لا يمسها أبداً. إعدادات الإصدار 1 تُنقل إلى صيغة الإصدار 2 تلقائياً مع الإبقاء على كل إجاباتك، وتُحفظ نسخة من الملف القديم باسم `profile.v1.json`. بعدها تسألك المهارة الأسئلة الجديدة فقط (الأساليب التي تحبها).
 
 ---
 
@@ -288,7 +287,7 @@ Say `منتجلي هذا الفيديو: <path to the video>` ("edit this video 
 1. checks ffmpeg, Python 3.10+, Node.js 18+, the GPU and free disk space;
 2. names anything missing with its install command (`winget install Gyan.FFmpeg` / `Python.Python.3.12` / `OpenJS.NodeJS.LTS` on Windows; `brew install ffmpeg` / `python@3.12` / `node` on macOS, which needs Homebrew from brew.sh) and installs it only after your yes;
 3. sets up its Python environment in `~/.montage-crew/` and downloads the models (Whisper up to 3.1 GB, the matting model about 15 MB, GSAP about 73 KB), showing each size first and checking SHA-256 after;
-4. asks its setup questions once: your editor (none, DaVinci Resolve, Premiere Pro, After Effects, CapCut or Final Cut Pro), whether you film yourself, your voice, the styles you like, your brand (optional, saved once), format, dialect and retake words, digits, mode and folders (full list in [README.md](README.md#first-run));
+4. asks its setup questions once: your editor (none, DaVinci Resolve, Premiere Pro, After Effects, CapCut or Final Cut Pro), format, whether you film yourself, mode, your voice, dialect and retake words, digits, the styles you like, your brand (optional, saved once) and folders (full list in [README.md](README.md#first-run));
 5. starts editing after you say yes to the summary.
 
 After installing a program you may need to restart Claude Code.
@@ -301,7 +300,7 @@ When you choose Resolve during setup, the skill offers this mode and guides you.
 - **Plugin:** `/plugin marketplace update montage-crew`, then `/plugin update montage-crew@montage-crew`, then restart Claude Code.
 - **ZIP:** repeat step 1 with the new ZIP, or say `حدّث السكل من هذا الملف: <path to the new zip>` ("update the skill from this file"). By hand, unzip over the old folder or delete it first; both work. On the next use the skill notices the new version and re-runs its setup, which also updates the `mc-*` agents.
 
-Your data lives outside the skill folder, in `~/.montage-crew/` (profile, rules, brand kit, learned styles, models), so updates never touch it. A v1 profile is migrated to v2 automatically, keeping all your answers.
+Your data lives outside the skill folder, in `~/.montage-crew/` (profile, rules, brand kit, learned styles, models), so updates never touch it. A v1 profile is migrated to v2 automatically, keeping all your answers (the old file is kept as `profile.v1.json`); the skill then asks only the new questions (the styles you like).
 
 ### Uninstall
 - **Plugin:** `/plugin uninstall montage-crew@montage-crew` (and `/plugin marketplace remove montage-crew` to drop the source).

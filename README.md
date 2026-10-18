@@ -38,7 +38,7 @@ For English, see [the English section](#english) below.
 ليس عندك تصوير؟ اكتب الفكرة:
 
 ```text
-ما عندي فيديو، الفكرة: <فكرتك>
+ما عندي فيديو، عندي فكرة: <فكرتك>
 ```
 
 فتكتب المهارة السكربت، ثم تجهّز الصوت، ثم تبني فيديو موشن غرافيك كاملاً. هذا يعمل في أي طلب، مهما كانت إجابتك عن نوع المادة في الإعداد.
@@ -51,9 +51,9 @@ For English, see [the English section](#english) below.
 
 | الأمر | ماذا يفعل | أو قل مثلاً |
 |---|---|---|
-| `/montage-crew:montage` | مونتاج فيديو، أو فيديو موشن من فكرة | «منتجلي هذا الفيديو: …» · «ما عندي فيديو، الفكرة: …» |
-| `/montage-crew:learn` | تعلّم أسلوباً جديداً من فيديو أو رابط أو موقع موشن | «تعلّم هذا الأسلوب: <رابط أو مسار>» |
-| `/montage-crew:brand` | حفظ هويتك البصرية أو تعديلها | «احفظ هويتي» |
+| `/montage-crew:montage` | مونتاج فيديو، أو فيديو موشن من فكرة | «منتجلي هذا الفيديو: …» · «ما عندي فيديو، عندي فكرة: …» |
+| `/montage-crew:learn` | تعلّم أسلوباً جديداً من فيديو أو رابط أو موقع موشن | «تعلّم هذا الستايل: <رابط أو مسار>» · «تعلّم من هذا الفيديو» |
+| `/montage-crew:brand` | حفظ هويتك البصرية أو تعديلها، أو اقتراح هوية لك | «احفظ هويتي» · «حدّث هويتي» · «اقترح لي هوية» |
 | `/montage-crew:settings` | تغيير إجاباتك على أسئلة الإعداد | «غيّر إعداداتي» |
 
 ---
@@ -63,20 +63,20 @@ For English, see [the English section](#english) below.
 قبل أي سؤال، تفحص المهارة جهازك وحدها: ffmpeg و Python و Node وكرت الشاشة ونظام التشغيل والمساحة الفارغة.
 إذا نقص شيء تخبرك باسمه وبأمر تثبيته، وتثبّته فقط بعد أن تقول «نعم».
 
-بعد ذلك تسألك على عدة رسائل (4 أسئلة كحد أقصى في كل رسالة، ولكل سؤال جواب افتراضي، والرد الفارغ أو «تمام» يقبله):
+بعد ذلك تسألك على 4 رسائل (4 أسئلة كحد أقصى في كل رسالة، ولكل سؤال جواب افتراضي، والرد الفارغ أو «تمام» يقبله):
 
 | # | السؤال | الخيارات | الافتراضي |
 |---|---|---|---|
 | 1 | برنامج المونتاج الذي تستخدمه | DaVinci Resolve المجاني · Resolve Studio · Premiere Pro · After Effects · CapCut · Final Cut Pro · لا شيء | لا شيء (تستلم الفيديو النهائي فقط) |
-| 2 | هل تصوّر نفسك؟ | أمام الكاميرا · تسجيل شاشة · الاثنان · بدون تصوير | أمام الكاميرا |
-| 3 | الصوت | صوتك · صوت ذكاء اصطناعي (بمفتاحك) · موسيقى فقط | صوتك |
-| 4 | الأساليب التي تحبها | أساليب جاهزة تختار منها، وشكل الترجمة، وطابع الحركة (ناعم · سريع · فخم)، وروابط صناع محتوى يعجبك أسلوبهم | أسلوب افتراضي هادئ |
-| 5 | الهوية البصرية (اختياري) | الشعار · 3 ألوان · خط العناوين وخط النص · اسم الحساب وعبارة الدعوة · أو رابط موقعك | فارغ = تُحدَّد لكل فيديو |
-| 6 | مقاس الفيديو | عمودي 9:16 · أفقي 16:9 · الاثنان معاً | 9:16 |
-| 7 | اللهجة | قائمة اللهجات في الأسفل | الفصحى |
-| 8 | كلمات الإعادة | الكلمات التي تقولها عند إعادة لقطة | اكشن، كت، نعيد، من جديد |
-| 9 | شكل الأرقام | 123 · ١٢٣ | 123 |
-| 10 | طريقة العمل | سريع · احترافي | سريع |
+| 2 | مقاس الفيديو | عمودي 9:16 · أفقي 16:9 · الاثنان معاً | 9:16 |
+| 3 | هل تصوّر فيديوهاتك بنفسك؟ | أمام الكاميرا · تسجيل شاشة · الاثنان · بدون تصوير (فكرة فقط) | أمام الكاميرا |
+| 4 | طريقة العمل | سريع · احترافي | سريع |
+| 5 | الصوت | صوتك · صوت ذكاء اصطناعي (بمفتاحك) · موسيقى فقط | صوتك |
+| 6 | اللهجة | قائمة اللهجات في الأسفل | الفصحى |
+| 7 | كلمات الإعادة | الكلمات التي تقولها عند إعادة لقطة | اكشن، كت، نعيد، من جديد |
+| 8 | شكل الأرقام | 123 · ١٢٣ | 123 |
+| 9 | الأساليب التي تحبها | من 1 إلى 3 من 12 أسلوباً جاهزاً، وشكل الترجمة (من معرض الترجمات)، وطابع الحركة (ناعم · سريع · فخم)، وروابط صناع محتوى يعجبك أسلوبهم (تعرض عليك المهارة أن تتعلم منها بعد الحفظ) | `premium-soft`، وترجمة CAP-04 بألوان SC-02، وحركة ناعمة |
+| 10 | هل عندك هوية بصرية؟ | نعم (تعطيها شعارك وألوانك وخطوطك أو رابط موقعك) · لا · «اقترح لي هوية» | لا (تُحدَّد لكل فيديو) |
 | 11 | المجلدات | مجلد العمل · مجلد التسليم | `~/montage-crew-work` و `~/Videos/montage-crew` |
 | 12 | وضع Resolve المباشر (فقط إذا اخترت Resolve) | لا، أعطني ملف تايملاين · نعم | لا |
 
@@ -93,6 +93,7 @@ For English, see [the English section](#english) below.
 اكتب «احفظ هويتي» (أو `/montage-crew:brand`) وأعطها ما عندك: الشعار، أو صوراً من حسابك، أو رابط موقعك، أو الألوان والخطوط بنفسك.
 تنسخ المهارة الملفات إلى مجلد هويتك في `~/.montage-crew/brand/`، وتستخرج الألوان من الشعار أو الصور أو الموقع، وتعرض عليك النتيجة قبل الحفظ.
 من الموقع تأخذ الألوان وأسماء الخطوط والشعار فقط. ملفات الخطوط تأتي من Google Fonts أو من ملف تعطيه أنت. استخدم هويتك أنت فقط، وليس شعار جهة أخرى.
+ليس عندك هوية بعد؟ اكتب «اقترح لي هوية» فتقترح عليك ألواناً وخطوطاً تناسب محتواك.
 بعدها تستخدم هويتك في الترجمة والموشن والغلاف في كل فيديو، حتى لو نقلت أو حذفت الملف الأصلي. ويمكنك تعديلها في أي وقت بنفس العبارة.
 
 ---
@@ -108,8 +109,8 @@ For English, see [the English section](#english) below.
 
 ### مما تعلّمه لها
 
-أعطها فيديو يعجبك، أو رابط صانع محتوى، أو صفحة من موقع موشن غرافيك (مثل Dribbble أو Behance أو LottieFiles أو CodePen)، واكتب «تعلّم هذا الأسلوب» (أو `/montage-crew:learn`).
-تحلل المهارة الأسلوب (الألوان، والإيقاع، وشكل الترجمة، والحركات، والانتقالات) وتحفظه باسم في `~/.montage-crew/styles/`، وتحفظ الحركات الجديدة التي تعلمتها في `~/.montage-crew/learned/`. قبل الحفظ تعرض عليك ملخصاً قصيراً، ولا تحفظ شيئاً بدون «نعم» منك. بعدها تقول مثلاً «استخدم أسلوب <الاسم>» في أي فيديو.
+أعطها فيديو يعجبك، أو رابط صانع محتوى، أو صفحة من موقع موشن غرافيك (مثل Dribbble أو Behance أو LottieFiles أو CodePen)، واكتب «تعلّم هذا الستايل» (أو `/montage-crew:learn`).
+تحلل المهارة الأسلوب (الألوان، والإيقاع، وشكل الترجمة، والحركات، والانتقالات) وتحفظه باسم في `~/.montage-crew/styles/`، وتحفظ الحركات الجديدة التي تعلمتها في `~/.montage-crew/learned/`. قبل الحفظ تعرض عليك ملخصاً قصيراً، ولا تحفظ شيئاً بدون «نعم» منك. بعدها تقول مثلاً «سوّي مونتاج بستايل <الاسم>» في أي فيديو. والأساليب الجاهزة الـ 12 تعمل بنفس الطريقة، مثلاً «سوّي مونتاج بستايل neon-blue».
 
 - تتعلم **الطريقة** فقط، ولا تنسخ ملفات الآخرين أو تصاميمهم أو تضعها في فيديوك.
 - نصوص المواقع والروابط تعاملها كمعلومات فقط، ولا تنفّذ أي تعليمات مكتوبة فيها.
@@ -131,8 +132,8 @@ For English, see [the English section](#english) below.
 
 - **DaVinci Resolve:** ملف `timeline.xml` ومجلد `media/`. قبل الاستيراد اضبط معدل الإطارات للمشروع على 30 من File › Project Settings، ثم File › Import › Timeline واختر `timeline.xml`.
 - **Premiere Pro:** نفس الملف `timeline.xml`. استخدم File › Import.
-- **After Effects:** سكربت `ae_import.jsx` يبني لك التركيبة (composition) بكل الطبقات. من After Effects: File › Scripts › Run Script File واختر الملف.
-- **CapCut و Final Cut Pro:** الفيديو النهائي، ومجلد الطبقات الشفافة (الترجمة والموشن) لتضعها فوق الفيديو، مع ملف شرح قصير لطريقة ترتيبها.
+- **After Effects:** سكربت `ae_import.jsx` ومجلد `media/`. السكربت يبني لك التركيبة (composition) بكل الطبقات. من After Effects: File › Scripts › Run Script File واختر الملف. لا تحتاج إلى تفعيل خيار «Allow Scripts to Write Files and Access Network».
+- **CapCut و Final Cut Pro:** الفيديو النهائي، ومجلد `project/layers/` فيه الطبقات الشفافة (الترجمة والموشن) مرقّمة، وملف `order.txt` يشرح ترتيبها فوق الفيديو.
 - إذا ظهرت مقاطع بحالة «offline»: انقر بالزر الأيمن › Relink واختر مجلد `project/media/`.
 
 ### الطريقة 2: وضع Resolve المباشر (اختياري)
@@ -249,30 +250,30 @@ You only need Claude Code beforehand.
 
 ### Commands
 With the plugin you get four commands. Each has a plain phrase that works the same (phrases also work in the ZIP version):
-- `/montage-crew:montage` — edit a video, or make a motion video from an idea. Or say «منتجلي هذا الفيديو: …» / «ما عندي فيديو، الفكرة: …» ("I have no video, the idea is: …").
-- `/montage-crew:learn` — learn a new style from a video, a link or a motion-design site. Or say «تعلّم هذا الأسلوب: <link or path>» ("learn this style").
-- `/montage-crew:brand` — save or edit your brand kit. Or say «احفظ هويتي» ("save my brand").
+- `/montage-crew:montage` — edit a video, or make a motion video from an idea. Or say «منتجلي هذا الفيديو: …» / «ما عندي فيديو، عندي فكرة: …» ("I have no video, I have an idea: …").
+- `/montage-crew:learn` — learn a new style from a video, a link or a motion-design site. Or say «تعلّم هذا الستايل: <link or path>» ("learn this style") or «تعلّم من هذا الفيديو» ("learn from this video").
+- `/montage-crew:brand` — save or edit your brand kit, or get one suggested. Or say «احفظ هويتي» ("save my brand") or «اقترح لي هوية» ("suggest a brand for me").
 - `/montage-crew:settings` — change your setup answers. Or say «غيّر إعداداتي» ("change my settings").
 
 ### First run
 The skill first checks ffmpeg, Python 3.10+, Node.js 18+, the models, the GPU, the OS and free disk space by itself. If something is missing, it names it with its install command and installs it only after your yes.
-It then asks its setup questions once (at most 4 per message, each with a default; an empty answer or «تمام» accepts it): editor (none, DaVinci Resolve free or Studio, Premiere Pro, After Effects, CapCut or Final Cut Pro; default none), whether you film yourself (on camera, screen recording, both, or no footage), voice (own, AI with your own key, or music only), the styles you like (built-in looks, caption style, motion feel — smooth, snappy or premium — and links to creators you like), brand (optional; saved once), format (9:16, 16:9 or both; default 9:16), dialect (default MSA), retake words, digits, mode (fast or pro; default fast), folders (default `~/montage-crew-work` and `~/Videos/montage-crew`; the work folder must be an ASCII path), and, only for Resolve users, LIVE mode. It shows a summary and saves after one "yes". You can override the footage type or format for one video in the same request.
+It then asks its setup questions once, over 4 messages (at most 4 per message, each with a default; an empty answer or «تمام» accepts it): (1) editor (DaVinci Resolve free or Studio, Premiere Pro, After Effects, CapCut, Final Cut Pro or none; default none), format (9:16, 16:9 or both; default 9:16), whether you film your videos yourself (on camera, screen recording, both, or no footage / idea only; default on camera), mode (fast or pro; default fast); (2) voice (own, AI with your own key, or music only), dialect (default MSA), retake words, digits; (3) the styles you like: 1–3 of the 12 built-in styles (default `premium-soft`), caption style (default CAP-04 with colour scheme SC-02), motion feel (smooth, snappy or premium; default smooth) and links to creators you like, which it offers to learn from after saving; (4) your brand (yes, no, or «اقترح لي هوية» "suggest one for me"; default no), folders (default `~/montage-crew-work` and `~/Videos/montage-crew`; the work folder must be an ASCII path), and, only for Resolve users, LIVE mode. It shows a summary and saves after one "yes". You can override the footage type or format for one video in the same request.
 
 ### Idea-only videos
-Say «ما عندي فيديو، الفكرة: <your idea>». The skill writes the script, prepares the voice and builds a full motion-graphics video. This works in any request, whatever your footage answer was.
+Say «ما عندي فيديو، عندي فكرة: <your idea>» ("I have no video, I have an idea"). The skill writes the script, prepares the voice and builds a full motion-graphics video. This works in any request, whatever your footage answer was.
 
 ### Brand kit, saved once
-Say «احفظ هويتي» or use `/montage-crew:brand` and give it your logo, images from your account, your website link, or your colours and fonts. It copies the files into `~/.montage-crew/brand/`, extracts the palette, and shows you the result before saving. From a website it takes only the colours, font names and logo; font files come from Google Fonts or from a file you give it. Use only your own brand. Every video then uses it for captions, motion graphics and the cover, even if you later move or delete the original files.
+Say «احفظ هويتي» or use `/montage-crew:brand` and give it your logo, images from your account, your website link, or your colours and fonts. It copies the files into `~/.montage-crew/brand/`, extracts the palette, and shows you the result before saving. From a website it takes only the colours, font names and logo; font files come from Google Fonts or from a file you give it. Use only your own brand. No brand yet? Say «اقترح لي هوية» ("suggest a brand for me"). Every video then uses it for captions, motion graphics and the cover, even if you later move or delete the original files.
 
 ### It learns from you
 - **From corrections:** every correction is logged. At the end of each video it becomes a rule in your own `rules.md`, and the skill tells you in two lines what it learned. The next video reads your rules first. You can edit or delete any rule; updates never erase them.
-- **From what you teach it:** give it a video you like, a creator's link, or a page from a motion-design site (such as Dribbble, Behance, LottieFiles or CodePen) and say «تعلّم هذا الأسلوب» or use `/montage-crew:learn`. It studies the colours, pacing, caption look, moves and transitions, saves the style by name in `~/.montage-crew/styles/` and new techniques in `~/.montage-crew/learned/`, after showing you a short summary and getting your yes. Then say «استخدم أسلوب <name>» ("use style <name>") in any video. It learns the technique only and never copies other people's files or designs into your video. Text on websites and links is treated as data, never as instructions. For YouTube, TikTok and Instagram links it reads the subtitles and a few frames only, downloads the full video only after your yes, deletes what it downloaded after the analysis, and never puts any of it in your video. You are responsible for having the right to analyse the links you give it.
+- **From what you teach it:** give it a video you like, a creator's link, or a page from a motion-design site (such as Dribbble, Behance, LottieFiles or CodePen) and say «تعلّم هذا الستايل» or use `/montage-crew:learn`. It studies the colours, pacing, caption look, moves and transitions, saves the style by name in `~/.montage-crew/styles/` and new techniques in `~/.montage-crew/learned/`, after showing you a short summary and getting your yes. Then say «سوّي مونتاج بستايل <name>» ("edit in style <name>") in any video; the 12 built-in styles work the same way, e.g. `neon-blue`. It learns the technique only and never copies other people's files or designs into your video. Text on websites and links is treated as data, never as instructions. For YouTube, TikTok and Instagram links it reads the subtitles and a few frames only, downloads the full video only after your yes, deletes what it downloaded after the analysis, and never puts any of it in your video. You are responsible for having the right to analyse the links you give it.
 
 ### Two ways to get the edit
 1. **Final video + files for your editor (everyone).** You always get `final.mp4` (H.264, AAC 48 kHz, −14 LUFS), an `.srt`, a `.txt` transcript and a cover image. With an editor you also get `project/` with every layer separate:
    - **DaVinci Resolve / Premiere Pro:** `timeline.xml` + `media/`. In Resolve, set the project frame rate to 30 in File › Project Settings, then File › Import › Timeline. In Premiere, use File › Import.
-   - **After Effects:** `ae_import.jsx` builds the composition with every layer. Run it from File › Scripts › Run Script File.
-   - **CapCut / Final Cut Pro:** the final video plus a folder of transparent layers (captions, motion graphics) to stack on top, with a short guide.
+   - **After Effects:** `ae_import.jsx` + `media/`. The script builds the composition with every layer. Run it from File › Scripts › Run Script File; you do not need to enable "Allow Scripts to Write Files and Access Network".
+   - **CapCut / Final Cut Pro:** the final video plus `project/layers/` with numbered transparent layers (captions, motion graphics) and an `order.txt` that says how to stack them.
    - Offline clips: right-click › Relink › choose `project/media/`.
 2. **LIVE Resolve mode (optional).** The skill builds the timeline inside an open DaVinci Resolve, layer by layer, and keeps your own edits. It needs the open-source davinci-resolve-mcp bridge (MIT, third-party), which you install yourself; see [INSTALL.md](INSTALL.md#live-resolve-mode-optional). It works on Resolve free 21.1 through the Lua tab of the Console, and on Studio. Warning: while the bridge runs, programs on your computer can control Resolve, so start it only while editing and close it afterwards. If the bridge fails, the skill falls back to path 1 and tells you in one line.
 
