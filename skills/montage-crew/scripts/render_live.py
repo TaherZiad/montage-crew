@@ -8,6 +8,7 @@ Then: python master.py <work>/out/<out_name>.mp4 <work>/out/final.mp4
 """
 import os, pathlib, sys, time
 
+sys.dont_write_bytecode = True  # never write __pycache__ into the (plugin) skill folder
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from live import connect_resolve  # noqa: E402
 

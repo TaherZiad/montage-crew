@@ -13,6 +13,7 @@ import hashlib, json, os, pathlib, shutil, sys, tempfile, urllib.request
 
 os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
 
+sys.dont_write_bytecode = True  # never write __pycache__ into the (plugin) skill folder
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import mc_profile  # noqa: E402
 

@@ -7,6 +7,7 @@ usage: python push.py in.mp4 out.mp4 T0 DUR AMOUNT [--size 1080x1920|1920x1080|9
 """
 import pathlib, subprocess, sys, tempfile
 
+sys.dont_write_bytecode = True  # never write __pycache__ into the (plugin) skill folder
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from mc_profile import FFMPEG, FFPROBE, canvas  # noqa: E402
 

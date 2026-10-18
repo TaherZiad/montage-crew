@@ -87,6 +87,7 @@ def selftest():
 # ── Resolve side ───────────────────────────────────────────────────────────
 def _tool(name):
     """absolute ffmpeg/ffprobe from PATH only (never the cwd) — same lookup as every other script."""
+    sys.dont_write_bytecode = True  # never write __pycache__ into the (plugin) skill folder
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
     import mc_profile
     return mc_profile.tool(name)

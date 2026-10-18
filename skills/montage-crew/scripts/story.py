@@ -17,6 +17,7 @@ Options: --dialect <name>  --set-words "w1,w2,phrase three"  --digits western|ar
 """
 import difflib, json, pathlib, re, statistics, sys
 
+sys.dont_write_bytecode = True  # never write __pycache__ into the (plugin) skill folder
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import mc_profile  # noqa: E402
 

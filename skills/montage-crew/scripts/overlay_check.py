@@ -17,6 +17,7 @@ import argparse, json, pathlib, subprocess, sys
 import numpy as np
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows cp1256 console
+sys.dont_write_bytecode = True  # never write __pycache__ into the (plugin) skill folder
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import zones  # same measured numbers as the planning step
 from mc_profile import FFMPEG, canvas

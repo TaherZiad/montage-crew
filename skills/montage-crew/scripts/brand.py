@@ -24,6 +24,7 @@ from urllib.parse import quote, urljoin, urlparse
 from PIL import Image, ImageFont
 
 HERE = Path(__file__).resolve().parent
+sys.dont_write_bytecode = True  # never write __pycache__ into the (plugin) skill folder
 sys.path.insert(0, str(HERE))
 import mc_profile  # noqa: E402
 import net  # noqa: E402

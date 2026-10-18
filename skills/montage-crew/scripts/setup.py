@@ -4,13 +4,21 @@ The user only unzips the skill into <claude-home>/skills/montage-crew/. The skil
 
   python setup.py check [--json]        JSON status. Exit 0 ready · 2 a system tool is missing · 5 run `install`
   python setup.py tools                 the winget / brew / apt command for each missing system tool (one per line)
-  python setup.py install [--offline] [--no-venv] [--gpu]
-        venv in <data>/venv + pinned pip packages, GSAP (pinned SHA-256), agents/mc-*.md -> <claude-home>/agents/,
-        the SKILL_DIR / DATA_DIR / PY placeholders filled in the .md files, <data>/installed.json, quick selftest.
+  python setup.py install [--offline] [--no-venv] [--gpu] [--no-selftest]
+        ZIP install: venv in <data>/venv + pinned pip packages, GSAP (pinned SHA-256), agents/mc-*.md ->
+        <claude-home>/agents/, the SKILL_DIR / DATA_DIR / PY placeholders filled in the .md files, <data>/installed.json,
+        quick selftest.
+        PLUGIN install (this skill is <root>/skills/montage-crew and <root>/.claude-plugin/plugin.json exists): the
+        plugin folder is never written: no agents copied (the plugin provides montage-crew:mc-*), no placeholders filled
+        (they resolve at runtime: `mc_profile.py path`), no data_dir.txt; venv, packages, GSAP (<data>/vendor/) and
+        installed.json all go to the data dir.
+  python setup.py install-ytdlp         OPTIONAL, only for learning from links, after the user said yes: yt-dlp
+        (pinned version) into the data dir's venv.
         --offline: no network (no pip, no GSAP).  --no-venv: no venv and no pip; this Python becomes PY.
         --gpu: onnxruntime-gpu instead of onnxruntime (NVIDIA).
-  python setup.py uninstall [--purge]   remove every file in installed.json whose SHA-256 still matches (agents,
-        skill folder), keep edited files; --purge also deletes the data folder (profile, rules, venv, models).
+  python setup.py uninstall [--purge]   ZIP: remove every file in installed.json whose SHA-256 still matches (agents,
+        skill folder), keep edited files. PLUGIN: nothing outside the data dir is touched (remove the plugin with
+        /plugin). --purge (ask the user first) also deletes the data folder (profile, brand, styles, rules, venv, models).
 Common: --claude-home DIR (default: the folder above skills/, else ~/.claude) · --data-home DIR (default:
 $MONTAGE_CREW_HOME, else ~/.montage-crew).
 Exit codes: 0 ok · 1 error · 2 missing prerequisite (nothing written) · 3 refused: a target exists that montage-crew
@@ -32,6 +40,12 @@ TOKENS = tuple("{{%s}}" % k for k in ("SKILL_DIR", "DATA_DIR", "PY"))  # built, 
 SKIP_DIRS = {"__pycache__", ".git", ".team", "node_modules"}
 PY_MODULES = "faster_whisper, onnxruntime, numpy, scipy, cv2, PIL, requests"
 GSAP_SHA = "c174bfce53a729418d57a8ad8625e7247c793a22fef8e2851e3cfa3de9cd8280"  # = fetch_assets.PINS["gsap"]
+YTDLP_PIN = "2026.8.19"  # exact version; never -U (ARGUS C2)
+PLUGIN = mc_profile.install_kind() == "plugin"
+
+
+def gsap_path(data):
+    return (data / "vendor" if PLUGIN else SKILL / "assets") / "gsap.min.js"
 
 
 def say(msg):
@@ -53,6 +67,8 @@ def sha_file(p):
 def homes(a):
     if a.claude_home:
         claude = pathlib.Path(a.claude_home).expanduser()
+    elif PLUGIN:  # only reported; a plugin install never writes there
+        claude = pathlib.Path(os.environ.get("CLAUDE_CONFIG_DIR") or pathlib.Path.home() / ".claude")
     elif SKILL.parent.name == "skills":
         claude = SKILL.parent.parent
     else:
@@ -66,6 +82,11 @@ def venv_py(data):
 
 
 def version():
+    if PLUGIN:
+        try:
+            return json.loads((SKILL.parent.parent / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))["version"]
+        except (OSError, ValueError, KeyError):
+            return "unknown"
     try:
         m = re.search(r"^## \[(\d+\.\d+\.\d+)\]", (SKILL / "CHANGELOG.md").read_text(encoding="utf-8"), re.M)
         return m.group(1) if m else "unknown"
@@ -145,7 +166,7 @@ def status(a):
     agents = claude / "agents"
     py_ok = sys.version_info >= (3, 10)
     st = {
-        "version": version(), "skill_dir": SKILL.as_posix(), "claude_home": claude.as_posix(), "data_dir": data.as_posix(),
+        "version": version(), "install_kind": "plugin" if PLUGIN else "zip", "skill_dir": SKILL.as_posix(), "claude_home": claude.as_posix(), "data_dir": data.as_posix(),
         "os": "windows" if WIN else ("macos" if MAC else sys.platform),
         "gpu": gpu(),
         "ffmpeg": tool_info("ffmpeg", ["-version"], r"ffmpeg version n?([\w.\-]+)"),
@@ -164,13 +185,17 @@ def status(a):
     vpy = pathlib.Path(man["python"]) if man and man.get("python") else venv_py(data)
     pk = vpy.is_file() and run_out([vpy, "-c", "import " + PY_MODULES], 120)[0] == 0
     st["venv"] = {"python": vpy.as_posix(), "exists": vpy.is_file(), "packages_ok": pk}
-    st["assets"] = {"gsap": sha_file(SKILL / "assets" / "gsap.min.js") == GSAP_SHA}
+    st["py"] = vpy.as_posix() if vpy.is_file() else pathlib.Path(sys.executable).as_posix()
+    st["assets"] = {"gsap": sha_file(gsap_path(data)) == GSAP_SHA, "gsap_path": gsap_path(data).as_posix()}
+    st["optional"] = {"yt-dlp": tool_info("yt-dlp", ["--version"], r"(\d{4}\.\d+\.\d+)"),
+                      "why": "only to learn from links (learn.py); install: setup.py install-ytdlp"}
     want = sorted(p.name for p in (SKILL / "agents").glob("mc-*.md"))
-    st["agents"] = {"dir": agents.as_posix(), "missing": [n for n in want if not (agents / n).is_file()]}
+    st["agents"] = ({"provided_by": "plugin", "missing": []} if PLUGIN else
+                    {"dir": agents.as_posix(), "missing": [n for n in want if not (agents / n).is_file()]})
     left = [p.name for p in SKILL.rglob("*.md") if not (SKIP_DIRS & set(p.relative_to(SKILL).parts))
             and p.parent != SKILL / "agents" and any(t.encode() in p.read_bytes() for t in TOKENS)]
-    st["placeholders_left"] = left  # e.g. a new ZIP unzipped over the old folder -> run install again
-    st["installed"] = bool(man) and man.get("version") == st["version"] and not left
+    st["placeholders_left"] = [] if PLUGIN else left  # ZIP: a new ZIP unzipped over the old one -> install again
+    st["installed"] = bool(man) and man.get("version") == st["version"] and not st["placeholders_left"]
     st["missing_tools"] = [n for n in ("ffmpeg", "ffprobe", "node", "python") if not st[n]["ok"]]
     st["ready"] = not st["missing_tools"] and st["installed"] and pk and not st["agents"]["missing"]
     st["detected"] = {"os": st["os"], "gpu": st["gpu"], "ffmpeg": st["ffmpeg"]["version"], "python": st["python"]["version"],
@@ -249,6 +274,9 @@ def cmd_install(a):
     if SKILL.name != NAME:
         say(f"REFUSED: the skill folder must be named '{NAME}' (it is '{SKILL.name}'). Nothing was written.")
         return 3
+    if data == SKILL or SKILL in data.parents or (PLUGIN and SKILL.parent.parent in (data, *data.parents)):
+        say("REFUSED: the data folder must be outside the skill/plugin folder. Nothing was written.")
+        return 3
 
     old = load_manifest(data)
     ours = {os.path.normcase(f["path"]) for f in (old or {}).get("files", [])}
@@ -258,9 +286,9 @@ def cmd_install(a):
 
     # plan: agents to copy (filled) + .md files of the skill to fill in place
     plan = []
-    for src in sorted((SKILL / "agents").glob("mc-*.md")):
+    for src in ([] if PLUGIN else sorted((SKILL / "agents").glob("mc-*.md"))):
         plan.append((agents / src.name, fill(src.read_bytes(), values)))
-    for p in sorted(SKILL.rglob("*.md")):
+    for p in ([] if PLUGIN else sorted(SKILL.rglob("*.md"))):
         if SKIP_DIRS & set(p.relative_to(SKILL).parts):
             continue
         b = p.read_bytes()
@@ -305,33 +333,51 @@ def cmd_install(a):
     for dst, b in plan:
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(b)
-    marker = SKILL / "data_dir.txt"
-    marker.write_text(str(data) + "\n", encoding="utf-8")
+    if not PLUGIN:
+        (SKILL / "data_dir.txt").write_text(str(data) + "\n", encoding="utf-8")
     env = dict(os.environ, MONTAGE_CREW_HOME=str(data), PYTHONDONTWRITEBYTECODE="1", PYTHONIOENCODING="utf-8")
-    if not a.offline and run([py, HERE / "fetch_assets.py", "gsap"], env) != 0:
+    if not a.offline and run([py, "-B", HERE / "fetch_assets.py", "gsap", "--dest", gsap_path(data).parent], env) != 0:
         say("WARNING: GSAP download failed; it is fetched again on first use.")
 
     files = [{"path": str(dst), "sha256": sha_file(dst)} for dst, _ in plan if dst.parent == agents]
-    for p in sorted(SKILL.rglob("*")):
+    for p in ([] if PLUGIN else sorted(SKILL.rglob("*"))):
         if p.is_file() and not (SKIP_DIRS & set(p.relative_to(SKILL).parts)) and p.suffix != ".pyc":
             files.append({"path": str(p), "sha256": sha_file(p)})
     gs = str(SKILL / "assets" / "gsap.min.js")
-    if not any(f["path"] == gs for f in files):  # fetched later on first use -> still ours to remove
+    if not PLUGIN and not any(f["path"] == gs for f in files):  # fetched later on first use -> still ours to remove
         files.append({"path": gs, "sha256": GSAP_SHA, "optional": True})
     new = {os.path.normcase(f["path"]) for f in files}
     stale = [f for f in (old or {}).get("files", []) if os.path.normcase(f["path"]) not in new]
     kept = remove_files(stale, SKILL, agents)  # e.g. an agent dropped in a newer version
-    write_manifest(data, {"name": NAME, "version": version(),
+    write_manifest(data, {"name": NAME, "version": version(), "install_kind": "plugin" if PLUGIN else "zip",
                           "installed": datetime.datetime.now().isoformat(timespec="seconds"),
                           "claude_home": str(claude), "skill_dir": str(SKILL), "agents_dir": str(agents),
                           "data_dir": str(data), "python": str(py), "venv": use_venv, "files": files + kept})
     say(f"agents: {sum(1 for d, _ in plan if d.parent == agents)} registered · {len(files)} files recorded")
 
+    if a.no_selftest:
+        say("ready (selftest skipped).")
+        return 0
     say("running the quick selftest ...")
-    if run([py, HERE / "run_selftests.py", "--quick"], env) != 0:
+    if run([py, "-B", HERE / "run_selftests.py", "--quick"], env) != 0:
         say(f"INSTALLED, but the selftest failed (exit 4). If packages are missing: {pip_line}")
         return 4
     say("ready.")
+    return 0
+
+
+def cmd_install_ytdlp(a):
+    """yt-dlp==YTDLP_PIN into the data venv (only after the user said yes; learning from links is optional)."""
+    claude, data = homes(a)
+    py = venv_py(data)
+    if not py.is_file():
+        say("run `setup.py install` first (the Python environment is missing).")
+        return 2
+    say(f"installing yt-dlp {YTDLP_PIN} (optional, for learning from links) ...")
+    if run([py, "-m", "pip", "install", "--disable-pip-version-check", "-q", f"yt-dlp=={YTDLP_PIN}"]) != 0:
+        say("ERROR: pip could not install yt-dlp. Learning from links stays off; local files still work.")
+        return 1
+    say("yt-dlp ready.")
     return 0
 
 
@@ -363,7 +409,10 @@ def cmd_uninstall(a):
         say(f"ERROR: run uninstall with the system Python ({'py -3' if WIN else 'python3'}), not the venv one. Nothing removed.")
         return 1
     m = load_manifest(data)
-    if m:
+    if m and (PLUGIN or m.get("install_kind") == "plugin"):
+        (data / "installed.json").unlink()
+        say("plugin install: nothing to remove outside the data folder (remove the plugin itself with /plugin).")
+    elif m:
         skill = pathlib.Path(m.get("skill_dir") or SKILL)
         agents = pathlib.Path(m.get("agents_dir") or claude / "agents")
         if skill.name != NAME or agents.name != "agents":
@@ -412,6 +461,36 @@ def selftest():
         assert not f.exists() and g.exists() and len(kept) == 1
         import fetch_assets
         assert GSAP_SHA == fetch_assets.PINS["gsap"]["sha256"], "GSAP pin out of sync with fetch_assets.py"
+    # plugin mode end to end: install/check/uninstall --purge write nothing under the plugin folder and no agents
+    with tempfile.TemporaryDirectory() as d:
+        d = pathlib.Path(d)
+        root, home = d / "plugin", d / "claude"
+        sk = root / "skills" / NAME
+        shutil.copytree(SKILL / "scripts", sk / "scripts", ignore=shutil.ignore_patterns("__pycache__", "tests"))
+        shutil.copytree(SKILL / "templates", sk / "templates")
+        shutil.copyfile(SKILL / "requirements.txt", sk / "requirements.txt")
+        (sk / "SKILL.md").write_text("run %s/scripts/x.py\n" % TOKENS[0], encoding="utf-8")
+        (root / "agents").mkdir()
+        (root / "agents" / "mc-qa.md").write_text("x %s\n" % TOKENS[2], encoding="utf-8")
+        (root / ".claude-plugin").mkdir()
+        (root / ".claude-plugin" / "plugin.json").write_text('{"name": "montage-crew", "version": "9.9.9"}', encoding="utf-8")
+        snap = lambda: {p.relative_to(root).as_posix(): sha_file(p) for p in root.rglob("*") if p.is_file()}
+        before = snap()
+        data = d / "data"
+        env = dict(os.environ, MONTAGE_CREW_HOME=str(data), PYTHONIOENCODING="utf-8")
+        go = lambda *x: subprocess.run([sys.executable, str(sk / "scripts" / "setup.py"), *x, "--claude-home", str(home)],
+                                       env=env, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        r = go("install", "--offline", "--no-venv", "--no-selftest")
+        assert r.returncode == 0, r.stdout + r.stderr
+        m = json.loads((data / "installed.json").read_text(encoding="utf-8"))
+        assert m["install_kind"] == "plugin" and m["version"] == "9.9.9" and m["files"] == [], m
+        st = json.loads(go("check").stdout)
+        assert st["install_kind"] == "plugin" and st["agents"]["provided_by"] == "plugin" and st["placeholders_left"] == []
+        assert st["installed"] and st["assets"]["gsap_path"].endswith("/vendor/gsap.min.js") and "yt-dlp" in st["optional"]
+        r = go("uninstall", "--purge")
+        assert r.returncode == 0 and not data.exists(), r.stdout
+        assert snap() == before, set(snap().items()) ^ set(before.items())
+        assert not (home / "agents").exists() and not list(root.rglob("__pycache__")) and not list(root.rglob("data_dir.txt"))
     print("selftest ok")
 
 
@@ -420,7 +499,7 @@ def main():
         selftest()
         return 0
     ap = argparse.ArgumentParser(prog="setup.py", description="montage-crew first-use setup")
-    ap.add_argument("action", choices=["check", "tools", "install", "uninstall"])
+    ap.add_argument("action", choices=["check", "tools", "install", "install-ytdlp", "uninstall"])
     ap.add_argument("--claude-home")
     ap.add_argument("--data-home")
     ap.add_argument("--json", action="store_true", help="check: JSON output (always on)")
@@ -428,9 +507,11 @@ def main():
     ap.add_argument("--offline", action="store_true")
     ap.add_argument("--gpu", action="store_true")
     ap.add_argument("--purge", action="store_true")
+    ap.add_argument("--no-selftest", action="store_true")
     a = ap.parse_args()
     try:
-        return {"check": cmd_check, "tools": cmd_tools, "install": cmd_install, "uninstall": cmd_uninstall}[a.action](a)
+        return {"check": cmd_check, "tools": cmd_tools, "install": cmd_install, "install-ytdlp": cmd_install_ytdlp,
+                "uninstall": cmd_uninstall}[a.action](a)
     except KeyboardInterrupt:
         return 1
     except Exception as e:  # one readable line, exit 1 = other error

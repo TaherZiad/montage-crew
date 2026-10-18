@@ -11,6 +11,9 @@ PY = [sys.executable]
 TESTS = [  # (name, command, heavy)
     ("setup", PY + ["setup.py", "--selftest"], False),
     ("mc_profile", PY + ["mc_profile.py", "--selftest"], False),
+    ("net", PY + ["net.py", "--selftest"], False),
+    ("brand", PY + ["brand.py", "--selftest"], False),
+    ("learn", PY + ["learn.py", "--selftest"], False),
     ("fetch_assets", PY + ["fetch_assets.py", "--selftest"], False),
     ("story", PY + ["story.py", "--selftest"], False),
     ("transcribe", PY + ["transcribe.py", "--selftest"], False),
@@ -34,6 +37,7 @@ TESTS = [  # (name, command, heavy)
 
 def main():
     quick = "--quick" in sys.argv
+    sys.dont_write_bytecode = True  # never write __pycache__ into the (plugin) skill folder
     sys.path.insert(0, str(HERE))
     import mc_profile
     tests = list(TESTS)
@@ -42,7 +46,7 @@ def main():
         tests.append(("kashida (node)", [node, "test_kashida.js"], False))
     fails = 0
     with tempfile.TemporaryDirectory() as data:
-        env = {**os.environ, "MONTAGE_CREW_HOME": data, "PYTHONIOENCODING": "utf-8", "HF_HUB_DISABLE_TELEMETRY": "1"}
+        env = {**os.environ, "MONTAGE_CREW_HOME": data, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1", "HF_HUB_DISABLE_TELEMETRY": "1"}
         for name, cmd, heavy in tests:
             if quick and heavy:
                 print(f"  skip  {name}")

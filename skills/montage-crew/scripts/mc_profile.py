@@ -209,7 +209,8 @@ def tool(name):
     if env and os.path.isfile(env):
         return env
     exts = [""] + (os.environ.get("PATHEXT", ".EXE;.CMD;.BAT").lower().split(";") if os.name == "nt" else [])
-    for d in _path_dirs():
+    venv_bin = str(data_dir() / "venv" / ("Scripts" if os.name == "nt" else "bin"))  # ours: e.g. the optional yt-dlp
+    for d in _path_dirs() + [venv_bin]:
         for e in exts:
             p = os.path.join(d, name + e)
             if os.path.isfile(p) and (os.name == "nt" or os.access(p, os.X_OK)):

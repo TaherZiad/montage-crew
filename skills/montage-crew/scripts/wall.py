@@ -11,6 +11,7 @@ import argparse, pathlib, sys, tempfile
 import cv2
 import numpy as np
 
+sys.dont_write_bytecode = True  # never write __pycache__ into the (plugin) skill folder
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from mc_profile import canvas  # noqa: E402
 

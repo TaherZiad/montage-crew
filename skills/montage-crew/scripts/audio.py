@@ -7,6 +7,7 @@
 """
 import json, pathlib, re, subprocess, sys, tempfile
 
+sys.dont_write_bytecode = True  # never write __pycache__ into the (plugin) skill folder
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from mc_profile import FFMPEG  # noqa: E402
 

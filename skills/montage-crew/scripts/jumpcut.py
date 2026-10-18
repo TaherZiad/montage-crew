@@ -16,6 +16,7 @@ import argparse, json, math, pathlib, subprocess, sys
 
 import numpy as np
 
+sys.dont_write_bytecode = True  # never write __pycache__ into the (plugin) skill folder
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from mc_profile import FFMPEG, FFPROBE, canvas, filter_script_args  # noqa: E402
 
