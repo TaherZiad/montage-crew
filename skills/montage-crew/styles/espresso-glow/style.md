@@ -1,5 +1,6 @@
 # espresso-glow — warm chocolate, ivory bloom titles, copper accent, 3D UI cards
-kind: look · source: built-in (style-dna A) · learned: built-in · best for: personal brand, coffee/food/lifestyle, warm premium tech · learn focus: whole edit
+best for: personal brand, coffee/food/lifestyle, warm premium tech
+kind: look · source: built-in (style-dna A) · learned: built-in · learn focus: whole edit
 
 ## Look
 palette: bg #1D1011 (chocolate) · text #F9E2CA (ivory, bloom glow) · accent #E09A5C (orange) + copper gradient — one accent · grade: warm, crushed shadows (measured)

@@ -1,5 +1,6 @@
 # premium-soft — soft karaoke words + huge hero phrases half behind the head, light-led motion (DEFAULT grammar)
-kind: grammar · source: built-in (craft/09 §9) · learned: built-in · best for: personal brand, authority, any talking head (default) · learn focus: whole edit
+best for: personal brand, authority, any talking head (default)
+kind: grammar · source: built-in (craft/09 §9) · learned: built-in · learn focus: whole edit
 
 ## Look
 palette: footage + one accent (gradient accent → deep accent → plum on emphasis) · text #F2F0E8

@@ -1,5 +1,6 @@
 # neon-blue — night navy grade, neon caption pairs, blur-cuts, orbit icons
-kind: look · source: built-in (style-dna C) · learned: built-in · best for: tech, AI tools, apps, gaming · learn focus: whole edit
+best for: tech, AI tools, apps, gaming
+kind: look · source: built-in (style-dna C) · learned: built-in · learn focus: whole edit
 
 ## Look
 palette: bg #0B131F + permanent bottom gradient · text white lead · accent blue gradient #3A86FF with double glow (measured)

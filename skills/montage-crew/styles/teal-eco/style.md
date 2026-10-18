@@ -1,5 +1,6 @@
 # teal-eco — teal room, counter hero, dark name pill, neon trail
-kind: look · source: built-in (style-dna F) · learned: built-in · best for: apps/startups, eco/health, product explainers · learn focus: whole edit
+best for: apps/startups, eco/health, product explainers
+kind: look · source: built-in (style-dna F) · learned: built-in · learn focus: whole edit
 
 ## Look
 palette: bg #0D2C3D (teal) · text white · accent cyan #3FD7FF (or coral) (measured)

@@ -1,5 +1,6 @@
 # editorial-collage — grayscale cut-out objects, paper texture, one colour disc, a phrase every 1–2 s
-kind: grammar · source: built-in (craft/09 §7) · learned: built-in · best for: hooks, intros, manifesto lines, idea-only videos · learn focus: whole edit
+best for: hooks, intros, manifesto lines, idea-only videos
+kind: grammar · source: built-in (craft/09 §7) · learned: built-in · learn focus: whole edit
 
 ## Look
 palette: paper off-white or dark paper · grayscale cut-outs · ONE big colour disc in the accent

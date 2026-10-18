@@ -1,5 +1,6 @@
 # before-after-board — portfolio wrapper: small Before + big After, tilted editor timeline
-kind: look · source: built-in (style-dna D/E/F/H boards) · learned: built-in · best for: showcasing an edit, design or product result (portfolio posts) · learn focus: wrapper layout
+best for: showcasing an edit, design or product result (portfolio posts)
+kind: look · source: built-in (style-dna D/E/F/H boards) · learned: built-in · learn focus: wrapper layout
 
 ## Look
 palette: grey satin board or dark board · text white · accent: one (blue gradient or brand)

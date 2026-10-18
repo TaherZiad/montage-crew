@@ -1,5 +1,6 @@
 # outline-doc — natural footage, colour-coded outline bars, chapter HUD
-kind: look · source: built-in (style-dna G) · learned: built-in · best for: educational, lists, step-by-step, long tutorials · learn focus: whole edit
+best for: educational, lists, step-by-step, long tutorials
+kind: look · source: built-in (style-dna G) · learned: built-in · learn focus: whole edit
 
 ## Look
 palette: natural footage (no grade) · text cream #FFF8E8 · accent: colour-coded bars (hook red, lead yellow, body blues, CTA green) (measured)

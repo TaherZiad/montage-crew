@@ -9,7 +9,7 @@ Used by `references/learn.md` when the user gives a link to an MG site («تعل
 4. **Technique only.** We take timings, eases, structure, colour logic, layout ideas. Never their images, icons, illustrations, Lottie/Rive files, fonts, music, footage, text, logos, or a design 1:1.
 5. **Licence before any asset.** An asset goes into a user's video only when its licence is free for commercial use AND it is recorded in `<work>/assets/manifest.json` (source URL, licence, author) — normally through `assets.py` and `references/asset-sourcing.md`. Unknown licence = not used.
 6. **No downloads from inspiration sites.** Dribbble, Behance, Awwwards, Motion Array, Envato, Jitter, Rive pages: technique only, **never download their files or previews** (their terms forbid it; previews are watermarked). Look at them in the browser and write the technique down.
-7. **Video platforms** (YouTube / Instagram / TikTok): `learn.py <slug> <url>` = subtitles + ≤ 12 low-res keyframes by default; full download only after the user's explicit yes (`--full`); deleted after analysis; nothing from it ever enters the user's video. The user must have the right to analyse the link.
+7. **Video platforms** (YouTube / Instagram / TikTok): `learn.py <slug> <url>` = a low-res copy (≤ 480p) + subtitles, measured then deleted, keeping only json + subtitles + one 12-frame sheet, by default; full download only after the user's explicit yes (`--full`); deleted after analysis; nothing from it ever enters the user's video. The user must have the right to analyse the link.
 8. **No logins, no paywalls, no CAPTCHAs.** If a page needs any of these, stop and ask the user to open it and share a screenshot or their own file.
 
 ## Catalogue
