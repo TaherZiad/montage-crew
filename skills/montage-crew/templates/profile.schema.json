@@ -110,7 +110,7 @@
             "string",
             "null"
           ],
-          "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+          "pattern": "^[A-Z][A-Z0-9_]{2,63}$"
         },
         "ai_voice_id": {
           "type": [
@@ -215,7 +215,9 @@
           "maxItems": 50,
           "items": {
             "type": "string",
-            "maxLength": 500
+            "minLength": 1,
+            "maxLength": 500,
+            "pattern": "^[^<>\\u0000-\\u001f\\u007f]*$"
           }
         },
         "default_style": {
@@ -223,7 +225,7 @@
             "string",
             "null"
           ],
-          "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+          "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
         }
       }
     },
@@ -250,7 +252,8 @@
         },
         "name": {
           "type": "string",
-          "maxLength": 80
+          "maxLength": 80,
+          "pattern": "^[^<>\\u0000-\\u001f\\u007f]*$"
         },
         "colors": {
           "type": "object",
@@ -306,14 +309,14 @@
                 "string",
                 "null"
               ],
-              "maxLength": 300
+              "pattern": "^[\\w \\-]{1,60}$"
             },
             "body": {
               "type": [
                 "string",
                 "null"
               ],
-              "maxLength": 300
+              "pattern": "^[\\w \\-]{1,60}$"
             }
           }
         },
@@ -326,22 +329,26 @@
         },
         "handle": {
           "type": "string",
-          "maxLength": 80
+          "maxLength": 80,
+          "pattern": "^[^<>\\u0000-\\u001f\\u007f]*$"
         },
         "cta": {
           "type": "string",
-          "maxLength": 120
+          "maxLength": 80,
+          "pattern": "^[^<>\\u0000-\\u001f\\u007f]*$"
         },
         "tone": {
           "type": "string",
-          "maxLength": 300
+          "maxLength": 80,
+          "pattern": "^[^<>\\u0000-\\u001f\\u007f]*$"
         },
         "source": {
           "type": [
             "string",
             "null"
           ],
-          "maxLength": 500
+          "maxLength": 500,
+          "pattern": "^[^<>\\u0000-\\u001f\\u007f]*$"
         }
       }
     },

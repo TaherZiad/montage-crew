@@ -1,6 +1,7 @@
 """Shared helpers for montage-crew scripts: data dir, the user's profile, and safe tool lookup.
 
-  python mc_profile.py path            print the data dir and the profile path
+  python mc_profile.py path            JSON {install_kind, skill_dir, data_dir, profile, py} (absolute; use these to
+                                       resolve the SKILL_DIR / DATA_DIR / PY placeholders at runtime)
   python mc_profile.py show            print the profile merged with defaults (JSON)
   python mc_profile.py tools           print where ffmpeg / ffprobe / node were found
   python mc_profile.py validate [file] check a profile against templates/profile.schema.json (exit 1 + reason if invalid)
@@ -9,8 +10,10 @@
   python mc_profile.py ask [file]      JSON list of the onboarding fields still unset (absent or null) -> ask only these
   python mc_profile.py --selftest
 
-Data dir (user data that upgrades never erase): $MONTAGE_CREW_HOME, else the path in <skill>/data_dir.txt
-(written by the installer), else ~/.montage-crew.
+Data dir (user data that upgrades never erase): $MONTAGE_CREW_HOME, else (ZIP install only) the path in
+<skill>/data_dir.txt written by the installer, else ~/.montage-crew.
+install_kind: "plugin" when this skill sits in <root>/skills/montage-crew and <root>/.claude-plugin/plugin.json exists
+(Claude Code plugin: the folder is never written at runtime), else "zip".
 Tools are looked up ONLY in the PATH directories (never the current folder: on Windows a bare program name
 is searched in the working directory first, so a planted ffmpeg.exe next to a video would run).
 Override a tool with MC_FFMPEG / MC_FFPROBE / MC_NODE (absolute path).
@@ -47,12 +50,17 @@ ASK = ["editor", "format", "footage", "voice.kind", "language.dialect", "mode", 
 SIZES = {"9x16": (1080, 1920), "16x9": (1920, 1080)}
 
 
+def install_kind():
+    root = SKILL_DIR.parent.parent
+    return "plugin" if SKILL_DIR.parent.name == "skills" and (root / ".claude-plugin" / "plugin.json").is_file() else "zip"
+
+
 def data_dir():
     env = os.environ.get("MONTAGE_CREW_HOME")
     if env:
         return pathlib.Path(env).expanduser()
     marker = SKILL_DIR / "data_dir.txt"
-    if marker.is_file():
+    if install_kind() == "zip" and marker.is_file():
         txt = marker.read_text(encoding="utf-8-sig").strip()
         if txt:
             return pathlib.Path(txt).expanduser()
@@ -61,6 +69,18 @@ def data_dir():
 
 def profile_path():
     return data_dir() / "profile.json"
+
+
+def python_exe():
+    """The venv Python setup made (<data>/venv), else the one running now."""
+    v = data_dir() / "venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    return v if v.is_file() else pathlib.Path(sys.executable)
+
+
+def paths():
+    ab = lambda p: pathlib.Path(os.path.abspath(p)).as_posix()
+    return {"install_kind": install_kind(), "skill_dir": ab(SKILL_DIR), "data_dir": ab(data_dir()),
+            "profile": ab(profile_path()), "py": ab(python_exe())}
 
 
 def _merge(base, over):
@@ -86,8 +106,9 @@ def upgrade(raw):
         return raw
     b = raw.get("brand") if isinstance(raw.get("brand"), dict) else {}
     if b and "colors" not in b:
-        new = {"colors": {k: b.get(k) for k in ("bg", "text", "accent")}, "fonts": {"head": b.get("font_head"),
-               "body": b.get("font_body")}, "logo": b.get("logo"), "handle": b.get("handle") or "", "cta": b.get("cta") or ""}
+        fname = lambda f: pathlib.Path(f.replace(chr(92), "/")).stem if isinstance(f, str) and any(c in f for c in "/.:" + chr(92)) else f
+        new = {"colors": {k: b.get(k) for k in ("bg", "text", "accent")}, "fonts": {"head": fname(b.get("font_head")),
+               "body": fname(b.get("font_body"))}, "logo": b.get("logo"), "handle": b.get("handle") or "", "cta": b.get("cta") or ""}
         new["colors"]["extra"] = []
         if any(v for v in (*new["colors"].values(), *new["fonts"].values(), new["logo"], new["handle"], new["cta"])):
             new["has_brand"] = True
@@ -136,8 +157,30 @@ def migrate(path=None):
     new = upgrade(raw)
     new["style_prefs"] = dict(DEFAULTS["style_prefs"])  # null = not asked yet
     new["brand"] = _merge(DEFAULTS["brand"], new.get("brand"))
+    dropped = []
+    for _ in range(5):  # a bad v1 value is reset to its default with a warning, never a crash
+        errs = [e for e in check(new) if not e.endswith(": missing")]
+        if not errs:
+            break
+        for e in errs:
+            keys = e.split(":")[0].lstrip("$.").split("[")[0].split(".")
+            parent, dflt = new, DEFAULTS
+            for k in keys[:-1]:
+                parent, dflt = parent.get(k, {}), (dflt or {}).get(k, {})
+            if not isinstance(parent, dict) or keys[-1] not in parent:
+                continue
+            old = parent[keys[-1]]
+            if isinstance(dflt, dict) and keys[-1] in dflt:
+                parent[keys[-1]] = json.loads(json.dumps(dflt[keys[-1]]))
+            else:
+                del parent[keys[-1]]
+            item = {"field": ".".join(keys), "why": e.split(": ", 1)[-1]}
+            if keys[:2] == ["brand", "logo"] or keys[:2] == ["brand", "fonts"]:
+                item["old_value"] = old  # a path: the skill offers `brand.py import --logo <old_value>`
+            dropped.append(item)
+            print(f"warning: profile {item['field']} reset ({item['why']})", file=sys.stderr)
     save(new, p)
-    return {"migrated": True, "backup": str(bak), "ask": ask(p)}
+    return {"migrated": True, "backup": str(bak), "dropped": dropped, "ask": ask(p)}
 
 
 def canvas(fmt=None, profile=None):
@@ -218,7 +261,8 @@ def _check(v, sc, path, errs):
             errs.append(f"{path}: too short")
         if "maxLength" in sc and len(v) > sc["maxLength"]:
             errs.append(f"{path}: too long")
-        if "pattern" in sc and not re.search(sc["pattern"], v):
+        m = re.search(sc["pattern"], v) if "pattern" in sc else True
+        if not m or (m is not True and sc["pattern"].endswith("$") and m.end() != len(v)):  # "$" also matches before "\n"
             errs.append(f"{path}: does not match {sc['pattern']}")
         if sc.get("format") == "date-time":
             try:
@@ -251,8 +295,56 @@ def validate(path=None, schema=None):
         return [f"{p}: missing"]
     except ValueError as e:
         return [f"{p}: not JSON ({e})"]
+    return check(data, schema)
+
+
+# AI voice key: the profile stores only the NAME of an environment variable, never the key
+KEY_ENVS = {"elevenlabs": {"ELEVENLABS_API_KEY", "XI_API_KEY"}, "openai": {"OPENAI_API_KEY"}}
+KEY_ENV_DENY = ("ANTHROPIC_", "CLAUDE", "AWS_", "AZURE_", "GITHUB_", "GH_", "GOOGLE_", "NPM_", "PYPI_", "HF_")
+KEY_ENV_DENY_EXACT = {"PATH", "HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "TEMP", "TMP", "COMSPEC", "PATHEXT"}
+
+
+def key_env_problem(name, provider=None):
+    """None when the env-var name is acceptable for this provider, else the reason."""
+    import re
+    if name is None:
+        return None
+    if not isinstance(name, str) or not re.fullmatch(r"[A-Z][A-Z0-9_]{2,63}", name):
+        return "must be the NAME of an environment variable (A-Z, 0-9, _), never the key itself"
+    if re.fullmatch(r"[A-F0-9_]{24,}", name):
+        return "looks like a key, not a variable name"
+    if name.startswith(KEY_ENV_DENY) or name in KEY_ENV_DENY_EXACT:
+        return f"{name} is reserved for other tools; use the voice provider's own variable"
+    allowed = KEY_ENVS.get((provider or "").lower())
+    if allowed and name not in allowed:
+        return f"for {provider} use one of {sorted(allowed)}"
+    return None
+
+
+def _inside(p, root):
+    try:
+        return pathlib.Path(os.path.realpath(p)).is_relative_to(pathlib.Path(os.path.realpath(root)))
+    except (OSError, ValueError):
+        return False
+
+
+def check(data, schema=None):
+    """[] when a profile dict is valid (schema + the rules a schema can't say), else the problems."""
     errs = []
     _check(data, json.loads(pathlib.Path(schema or SCHEMA).read_text(encoding="utf-8-sig")), "$", errs)
+    if not isinstance(data, dict):
+        return errs
+    v = data.get("voice") if isinstance(data.get("voice"), dict) else {}
+    why = key_env_problem(v.get("ai_key_env"), v.get("ai_provider")) if isinstance(v.get("ai_key_env"), str) else None
+    if why:
+        errs.append(f"$.voice.ai_key_env: {why}")
+    b = data.get("brand") if isinstance(data.get("brand"), dict) else {}
+    if isinstance(b.get("logo"), str) and not _inside(b["logo"], data_dir() / "brand"):
+        errs.append("$.brand.logo: must be a file inside the data folder's brand/ (run brand.py import --logo)")
+    refs = (data.get("style_prefs") or {}).get("liked_refs") if isinstance(data.get("style_prefs"), dict) else None
+    for i, r in enumerate(refs if isinstance(refs, list) else []):
+        if isinstance(r, str) and "://" in r and not r.lower().startswith(("http://", "https://")):
+            errs.append(f"$.style_prefs.liked_refs[{i}]: only http(s) links or local paths")
     return errs
 
 
@@ -322,6 +414,23 @@ def selftest():
             del v1["style_prefs"]
             f.write_text(json.dumps(v1), encoding="utf-8")
             assert validate(f) and migrate(f)["migrated"] and validate(f) == [], validate(f)
+            v1.update(brand={"bg": "red;}</style><script>", "text": None, "accent": None, "font_head": "C:/f/My Font.ttf",
+                             "font_body": None, "logo": "C:/elsewhere/logo.png", "handle": "<img src=x onerror=alert(1)>",
+                             "cta": "ok"}, voice=dict(v1["voice"], ai_provider="elevenlabs", ai_key_env="ANTHROPIC_API_KEY"))
+            f.write_text(json.dumps(v1), encoding="utf-8")
+            r = migrate(f)
+            m = json.loads(f.read_text(encoding="utf-8"))
+            got = {x["field"] for x in r["dropped"]}
+            assert got == {"brand.colors.bg", "brand.logo", "brand.handle", "voice.ai_key_env"}, r
+            assert m["brand"]["fonts"]["head"] == "My Font" and m["brand"]["cta"] == "ok" and validate(f) == [], validate(f)
+            assert next(x for x in r["dropped"] if x["field"] == "brand.logo")["old_value"] == "C:/elsewhere/logo.png"
+            assert m["voice"]["ai_key_env"] is None and not any("old_value" in x for x in r["dropped"] if x["field"].startswith("voice"))
+            for n, prov, ok in (("ELEVENLABS_API_KEY", "elevenlabs", True), ("OPENAI_API_KEY", "elevenlabs", False),
+                                ("MY_TTS_KEY", "other", True), ("GH_TOKEN", None, False), ("PATH", None, False),
+                                ("sk-live-123", None, False), ("ABCDEF0123456789ABCDEF0123", None, False)):
+                assert (key_env_problem(n, prov) is None) == ok, n
+            m["brand"]["name"] = "Taher" + chr(10); f.write_text(json.dumps(m), encoding="utf-8")
+            assert any("$.brand.name" in x for x in validate(f)), "trailing newline must not pass ^...$"
             f.write_text("{oops", encoding="utf-8")
             assert "not JSON" in validate(f)[0]
     print("selftest ok")
@@ -332,7 +441,7 @@ if __name__ == "__main__":
     if not a or a[0] == "--selftest":
         selftest()
     elif a[0] == "path":
-        print(data_dir()); print(profile_path())
+        print(json.dumps(paths(), ensure_ascii=False, indent=1))
     elif a[0] == "show":
         sys.stdout.reconfigure(encoding="utf-8")
         print(json.dumps(load_profile(), ensure_ascii=False, indent=1))
