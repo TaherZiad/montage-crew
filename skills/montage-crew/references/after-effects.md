@@ -6,7 +6,7 @@ What the project folder holds (`<out>/project/`):
 | Editor | Files | Made by |
 |---|---|---|
 | After Effects | `ae_import.jsx` + `media/` (A-roll, speaker matte, captions, one MG clip per beat — ProRes 4444 with alpha — voice, music, SFX) | `compose.py … --ae` |
-| CapCut / Final Cut | `layers/NN_<layer>_<name>.<ext>` (01 = bottom; video layers first, then audio: voice, music, SFX) + `order.txt` (one line per file: `file⇥start s⇥end s⇥track`) + `layers.csv` (file, kind, track, start_s, end_s, source_in_s, gain_db) | `compose.py … --layers-out` |
+| CapCut / Final Cut | `layers/NN_<layer>_<name>.<ext>` (01 = bottom; video layers first — all silent — then audio: the voice `NN_aroll_<name>.wav`, music, SFX: **all sound is in the audio files**) + `order.txt` (one line per file: `file⇥start s⇥end s⇥track`) + `layers.csv` (file, kind, track, start_s, end_s, source_in_s, gain_db) | `compose.py … --layers-out` |
 
 ## After Effects
 1. Open After Effects › New Project. **File › Scripts › Run Script File…** → choose `project/ae_import.jsx`.
@@ -18,13 +18,13 @@ What the project folder holds (`<out>/project/`):
 
 ## CapCut (desktop)
 1. New project. Import the whole `project/layers/` folder.
-2. Drag the files onto the timeline in the order of `order.txt` (first line = lowest track): the A-roll on the main track, then each `.mov` on its own overlay track from its start to its end time (seconds). Audio files on audio tracks; `layers.csv` gives each one's gain in dB.
+2. Drag the files onto the timeline in the order of `order.txt` (first line = lowest track): the A-roll on the main track, then each `.mov` on its own overlay track from its start to its end time (seconds). The video files have no sound; put every `.wav` on an audio track at its start time — that is the whole soundtrack (voice, music, SFX). `layers.csv` gives each one's gain in dB.
 3. The `.mov` layers have transparency; CapCut shows them over the video with no extra setting. If a layer looks black, it was imported as a plain video — re-import it from the folder.
 4. Project ratio 9:16 (or 16:9), 30 fps. Export 1080p, 30 fps. The mastered `<title>.mp4` is already there if no changes are needed.
 
 ## Final Cut Pro
 1. New Library/Event › File › Import › Media → `project/layers/`.
-2. New project 1080×1920 (or 1920×1080), 30 fps. Put the A-roll in the primary storyline; connect each `.mov` above it at the start time from `order.txt` (highest number = top). Audio files as connected audio below.
+2. New project 1080×1920 (or 1920×1080), 30 fps. Put the A-roll in the primary storyline; connect each `.mov` above it at the start time from `order.txt` (highest number = top). The video files have no sound; connect every `.wav` below as audio at its start time — voice, music and SFX all come from these files.
 3. Alpha: the ProRes 4444 layers keep their transparency. If one shows black, select it › Inspector › Info › Alpha Handling: Straight.
 4. Share › Master File (H.264). For the skill's loudness run `master.py` on the export (as above).
 
