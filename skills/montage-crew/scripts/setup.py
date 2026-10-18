@@ -456,7 +456,7 @@ def selftest():
         assert safe_target(skill / "SKILL.md", skill, agents)
         assert safe_target(agents / "mc-qa.md", skill, agents)
         assert not safe_target(agents / "reel-qa.md", skill, agents)
-        assert not safe_target(d / "c" / "skills" / "arabic-motion-reels" / "SKILL.md", skill, agents)
+        assert not safe_target(d / "c" / "skills" / "other-skill" / "SKILL.md", skill, agents)
         assert not safe_target(skill / ".." / "other" / "x", skill, agents)
         assert not safe_target(d / "c" / "skills" / "x" / "SKILL.md", d / "c" / "skills" / "x", agents)
         src = ("run %s %s/x {{ keep }}" % (TOKENS[2], TOKENS[0])).encode()
