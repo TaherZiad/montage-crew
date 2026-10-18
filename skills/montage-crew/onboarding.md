@@ -44,7 +44,7 @@ Show the built-in cards as ONE compact list (slug + its one-line look from `{{SK
 
 ## 2. Summary → one yes → save
 Show a short Arabic summary table of every answer (brand: name + 3 colour swatches as hex + fonts + logo file name). On «نعم / تمام / yes»:
-1. Write `{{DATA_DIR}}/profile.json` (schema `{{SKILL_DIR}}/templates/profile.schema.json`, example `templates/profile.example.json`): `schema_version: 2`, ISO `created`/`updated`, the answers, `detected` from step 0. Expand `~` to the absolute home path. The brand block is written by `brand.py` (it mirrors `brand/brand.json`) — don't hand-edit it. Store the API key's env-var NAME only — **never a key value, anywhere** (profile, work folder, logs).
+1. Write `{{DATA_DIR}}/profile.json` (schema `{{SKILL_DIR}}/templates/profile.schema.json`, example `templates/profile.example.json`): `schema_version: 2`, ISO `created`/`updated`, the answers, `detected` from step 0. Expand `~` to the absolute home path. The brand block is written by `brand.py` (it mirrors `brand/brand.json`) — don't hand-edit it. A brand imported during this onboarding was saved before the profile existed → run `{{PY}} {{SKILL_DIR}}/scripts/brand.py sync` right after writing the profile. Store the API key's env-var NAME only — **never a key value, anywhere** (profile, work folder, logs).
 2. Validate: `{{PY}} {{SKILL_DIR}}/scripts/mc_profile.py validate`. Fails → fix and re-validate; never continue with an invalid profile.
 3. If missing, copy `{{SKILL_DIR}}/templates/rules.md` → `{{DATA_DIR}}/rules.md` and `templates/scorecard.md` → `{{DATA_DIR}}/scorecard.md`. Never overwrite existing ones (they are the user's history).
 4. Create the work and output folders.
