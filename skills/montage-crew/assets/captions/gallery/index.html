@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<title>Caption styles gallery</title>
+<script src="../../gsap.min.js"></script>
+<script>window.gsap || document.write('<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js" integrity="sha256-wXS/zlOnKUGNV6ithiXnJHx5OiL++OKFHjz6PenNgoA=" crossorigin="anonymous"><' + '/script>');</script>
+<script src="../../rtl-kit.js"></script>
+<script src="../caption-styles.js"></script>
+<style>
+/* caption-styles.css — looks for the 28 caption styles (motion lives in caption-styles.js).
+ * Copy assets/fonts/ next to this file as ./fonts/ (same convention as rtl-kit.css).
+ * HyperFrames `check` wants @font-face inline in the composition style block: paste this file's @font-face block there
+ * (or inline the whole file, as gallery/gen.py does). All fonts: SIL OFL 1.1 (Google Fonts).
+ * Colours come from the scheme as CSS vars on .cs-layer: --ink --acc --acc2 --stk --on --dim --acc-a --acc2-a.
+ */
+@font-face { font-family: "Plex Arabic"; src: url("../../fonts/IBMPlexSansArabic-Light.ttf"); font-weight: 300; }
+@font-face { font-family: "Plex Arabic"; src: url("../../fonts/IBMPlexSansArabic-Regular.ttf"); font-weight: 400 500; }
+@font-face { font-family: "Plex Arabic"; src: url("../../fonts/IBMPlexSansArabic-SemiBold.ttf"); font-weight: 600; }
+@font-face { font-family: "Plex Arabic"; src: url("../../fonts/IBMPlexSansArabic-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Alexandria"; src: url("../../fonts/Alexandria-VF.ttf") format("truetype"); font-weight: 100 900; }
+@font-face { font-family: "Cairo"; src: url("../../fonts/Cairo-VF.ttf") format("truetype"); font-weight: 200 1000; }
+@font-face { font-family: "Readex Pro"; src: url("../../fonts/ReadexPro-VF.ttf") format("truetype"); font-weight: 160 700; }
+@font-face { font-family: "Rubik"; src: url("../../fonts/Rubik-VF.ttf") format("truetype"); font-weight: 300 900; }
+@font-face { font-family: "Lalezar"; src: url("../../fonts/Lalezar-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: "Baloo Bhaijaan 2"; src: url("../../fonts/BalooBhaijaan2-VF.ttf") format("truetype"); font-weight: 400 800; }
+@font-face { font-family: "Changa"; src: url("../../fonts/Changa-VF.ttf") format("truetype"); font-weight: 200 800; }
+@font-face { font-family: "El Messiri"; src: url("../../fonts/ElMessiri-VF.ttf") format("truetype"); font-weight: 400 700; }
+@font-face { font-family: "Noto Kufi Arabic"; src: url("../../fonts/NotoKufiArabic-VF.ttf") format("truetype"); font-weight: 100 900; }
+@font-face { font-family: "Amiri"; src: url("../../fonts/Amiri-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Marhey"; src: url("../../fonts/Marhey-VF.ttf") format("truetype"); font-weight: 300 700; }
+@font-face { font-family: "Lemonada"; src: url("../../fonts/Lemonada-VF.ttf") format("truetype"); font-weight: 300 700; }
+@font-face { font-family: "Almarai"; src: url("../../fonts/Almarai-ExtraBold.ttf"); font-weight: 800; }
+@font-face { font-family: "Aref Ruqaa"; src: url("../../fonts/ArefRuqaa-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Segoe UI Emoji"; src: local("Segoe UI Emoji"); }  /* Windows colour emoji (CAP-17) */
+@font-face { font-family: "Montserrat"; src: url("../../fonts/Montserrat-VF.ttf") format("truetype"); font-weight: 100 900; }
+
+/* ---------- base (soft caption spec, craft/09 §2) ---------- */
+.cs-layer { position: absolute; inset: 0; pointer-events: none; }
+.cs-cap { position: absolute; left: 190px; right: 190px; top: var(--cs-top, 1170px); text-align: center; direction: rtl; opacity: 0;
+  font-family: "Plex Arabic", sans-serif; font-weight: 500; font-size: 68px; line-height: 1.32; color: var(--ink);
+  text-shadow: 0 2px 18px rgba(0,0,0,.45); }
+.cs-w { display: inline-block; position: relative; isolation: isolate; }
+.cs-w.lat { direction: ltr; unicode-bidi: isolate; font-family: "Montserrat", sans-serif; }
+.cs-key { color: var(--acc); }
+.cs-w > i, .cs-cap > i { position: absolute; pointer-events: none; font-style: normal; }
+.cs-emo { display: inline-block; font-family: "Segoe UI Emoji", sans-serif; text-shadow: 0 4px 14px rgba(0,0,0,.4); }
+
+/* CAP-02 Soft Blur-In, CAP-01 Soft Phrase: base */
+/* CAP-03 Karaoke Fill */
+.cs-cap-03 .cs-cap { font-weight: 600; font-size: 70px; }
+.cs-cap-03 .cs-w, .cs-cap-03 .cs-w.cs-key { color: var(--dim); }
+/* CAP-04 Hormozi Punch */
+.cs-cap-04 .cs-cap { font-family: "Cairo", sans-serif; font-weight: 900; font-size: 78px; line-height: 1.3;
+  -webkit-text-stroke: 11px var(--stk); paint-order: stroke fill; text-shadow: 0 5px 16px rgba(0,0,0,.55); }
+.cs-cap-04 .cs-key { font-size: 1.12em; }
+/* CAP-05 Beast Bounce */
+.cs-cap-05 .cs-cap { font-family: "Lalezar", sans-serif; font-weight: 400; font-size: 102px; line-height: 1.22;
+  -webkit-text-stroke: 12px var(--stk); paint-order: stroke fill; text-shadow: 0 9px 0 var(--stk); }
+/* CAP-06 Clean Educator */
+.cs-cap-06 .cs-cap { font-family: "Readex Pro", sans-serif; font-weight: 600; font-size: 64px; text-shadow: 0 3px 14px rgba(0,0,0,.42); }
+/* CAP-07 Highlight Pill (⚠ box — off the soft-text default; only when the brief picks it) */
+.cs-cap-07 .cs-cap { font-family: "Rubik", sans-serif; font-weight: 700; font-size: 70px; text-shadow: 0 2px 10px rgba(0,0,0,.35); }
+.cs-cap-07 .cs-w { z-index: 0; }
+.cs-cap-07 .cs-key { color: var(--ink); }
+.cs-pill { inset: .06em -.2em .02em -.2em; z-index: -1; background: var(--acc); border-radius: .26em; opacity: 0;
+  box-shadow: 0 6px 18px rgba(0,0,0,.3); }
+/* CAP-08 Underline Sweep */
+.cs-cap-08 .cs-cap { font-weight: 600; }
+.cs-underline { left: -.04em; right: -.04em; bottom: .02em; height: 8px; border-radius: 4px; background: var(--acc);
+  transform-origin: 100% 50%; box-shadow: 0 0 14px var(--acc-a); }
+/* CAP-09 Neon Glow */
+.cs-cap-09 .cs-cap { font-family: "Alexandria", sans-serif; font-weight: 700; font-size: 70px;
+  text-shadow: 0 0 10px var(--acc-a), 0 2px 14px rgba(0,0,0,.5); }
+.cs-cap-09 .cs-key { color: var(--acc2); text-shadow: 0 0 14px var(--acc), 0 0 42px var(--acc-a); }
+/* CAP-10 Outline to Fill */
+.cs-cap-10 .cs-cap { font-family: "Alexandria", sans-serif; font-weight: 900; font-size: 74px; line-height: 1.3; color: transparent;
+  -webkit-text-stroke: 2.5px var(--ink); text-shadow: none; filter: drop-shadow(0 3px 10px rgba(0,0,0,.55)); }
+.cs-cap-10 .cs-w, .cs-cap-10 .cs-key { color: rgba(0,0,0,0); }
+.cs-cap-10 .cs-key { -webkit-text-stroke-color: var(--acc); }
+/* CAP-11 Gradient Sweep */
+.cs-cap-11 .cs-cap { font-family: "Alexandria", sans-serif; font-weight: 800; font-size: 78px; text-shadow: none;
+  filter: drop-shadow(0 3px 12px rgba(0,0,0,.55)); }
+.cs-cap-11 .cs-w { padding: .04em .02em; color: transparent; -webkit-background-clip: text; background-clip: text;
+  background-image: linear-gradient(90deg, var(--ink) 0 50%, var(--acc) 50%, var(--acc2) 100%); background-size: 200% 100%; background-position: 0% 0%; }
+/* CAP-12 3D Extrude */
+.cs-cap-12 .cs-cap { font-family: "Lalezar", sans-serif; font-weight: 400; font-size: 100px; line-height: 1.25;
+  text-shadow: 1px 1px 0 var(--acc), 2px 2px 0 var(--acc), 3px 3px 0 var(--acc), 4px 4px 0 var(--acc), 5px 5px 0 var(--acc),
+    6px 6px 0 var(--acc), 7px 7px 0 var(--acc), 8px 8px 0 var(--stk), 10px 14px 22px rgba(0,0,0,.55); }
+.cs-cap-12 .cs-key { color: var(--acc2); }
+/* CAP-13 Typewriter */
+.cs-cap-13 .cs-cap { font-family: "Noto Kufi Arabic", sans-serif; font-weight: 500; font-size: 60px; line-height: 1.55; text-align: right; word-spacing: .1em; }
+.cs-cap-13 .cs-w { display: none; }
+.cs-caret { position: static !important; display: inline-block; width: 6px; height: .95em; margin-right: 8px; vertical-align: -.14em;
+  background: var(--acc); box-shadow: 0 0 12px var(--acc-a); }
+/* CAP-14 Word Blur-Rise: base */
+.cs-cap-14 .cs-cap { font-size: 70px; }
+/* CAP-15 Stacked Emphasis */
+.cs-cap-15 .cs-cap { top: var(--cs-top, 1100px); line-height: 1.12; }
+.cs-cap-15 .cs-l1 { font-weight: 300; font-size: 56px; color: var(--ink); opacity: .88; }
+.cs-cap-15 .cs-l2 { font-family: "Alexandria", sans-serif; font-weight: 900; font-size: 132px; line-height: 1.15;
+  text-shadow: 0 4px 30px rgba(0,0,0,.35), 0 0 46px var(--acc-a); }
+/* CAP-16 Two-Tone Lead */
+.cs-cap-16 .cs-cap { font-weight: 300; font-size: 62px; }
+.cs-cap-16 .cs-w { opacity: .86; }
+.cs-cap-16 .cs-key { opacity: 1; font-family: "Alexandria", sans-serif; font-weight: 800; font-size: 1.4em; vertical-align: -.06em; }
+/* CAP-17 Emoji Inline */
+.cs-cap-17 .cs-cap { font-family: "Almarai", sans-serif; font-weight: 800; font-size: 70px; }
+/* CAP-18 Cinematic Lower */
+.cs-cap-18 .cs-cap { font-family: "El Messiri", serif; font-weight: 600; font-size: 56px; top: var(--cs-top, 1300px); text-shadow: 0 2px 16px rgba(0,0,0,.6); }
+.cs-line { top: -18px; left: 50%; width: 280px; margin-left: -140px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--acc), transparent); }
+/* CAP-19 Ruqaa Script */
+.cs-cap-19 .cs-cap { font-family: "Aref Ruqaa", serif; font-weight: 700; font-size: 84px; line-height: 1.4; text-shadow: 0 3px 18px rgba(0,0,0,.55); }
+/* CAP-20 Editorial Serif */
+.cs-cap-20 .cs-cap { font-family: "Amiri", serif; font-weight: 700; font-size: 72px; line-height: 1.45; text-shadow: 0 2px 16px rgba(0,0,0,.55); }
+/* CAP-21 Kufi Statement */
+.cs-cap-21 .cs-cap { font-family: "Noto Kufi Arabic", sans-serif; font-weight: 800; font-size: 76px; line-height: 1.5; text-shadow: 0 4px 18px rgba(0,0,0,.55); }
+/* CAP-22 Bubble Pop */
+.cs-cap-22 .cs-cap { font-family: "Baloo Bhaijaan 2", sans-serif; font-weight: 800; font-size: 86px; line-height: 1.3;
+  -webkit-text-stroke: 9px var(--stk); paint-order: stroke fill; text-shadow: 0 7px 0 var(--acc2); }
+/* CAP-23 Glitch RGB */
+.cs-cap-23 .cs-cap { font-family: "Changa", sans-serif; font-weight: 700; font-size: 76px; }
+/* CAP-24 Spotlight Focus */
+.cs-cap-24 .cs-cap { font-family: "Readex Pro", sans-serif; font-weight: 600; font-size: 70px; }
+.cs-cap-24 .cs-w { opacity: .4; filter: blur(3px); }
+/* CAP-25 One Word */
+.cs-cap-25 .cs-cap { font-family: "Alexandria", sans-serif; font-weight: 800; font-size: 112px; height: 160px; top: var(--cs-top, 1140px);
+  text-shadow: 0 4px 26px rgba(0,0,0,.5); }
+.cs-cap-25 .cs-w { position: absolute; left: 0; right: 0; top: 0; opacity: 0; }
+/* CAP-26 Kashida Stretch */
+.cs-cap-26 .cs-cap { font-weight: 600; font-size: 70px; }
+/* CAP-27 Marker Highlight */
+.cs-cap-27 .cs-cap { font-family: "Marhey", sans-serif; font-weight: 600; font-size: 72px; line-height: 1.45; }
+.cs-cap-27 .cs-w { z-index: 0; }
+.cs-cap-27 .cs-key { color: var(--ink); }
+.cs-marker { left: -.14em; right: -.14em; top: .62em; bottom: .16em; z-index: -1; border-radius: .1em; background: var(--acc-m);
+  transform-origin: 100% 50%; }
+/* CAP-28 Retro Offset */
+.cs-cap-28 .cs-cap { font-family: "Lemonada", sans-serif; font-weight: 700; font-size: 62px; line-height: 1.5; text-shadow: 5px 5px 0 var(--acc); }
+.cs-cap-28 .cs-key { color: var(--acc2); }
+
+  html, body { margin: 0; background: #000; }
+  #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  #bg { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+  .seg { position: absolute; inset: 0; opacity: 0; }
+  .capbox { position: absolute; inset: 0; }
+  .lbl { position: absolute; left: 0; right: 0; top: 70px; text-align: center; color: #fff; font-family: "Montserrat", sans-serif;
+    text-shadow: 0 2px 14px rgba(0,0,0,.7); }
+  .lbl b { display: block; font-weight: 900; font-size: 92px; letter-spacing: .02em; }
+  .lbl span { display: block; font-weight: 700; font-size: 50px; }
+  .lbl em { display: block; font-style: normal; font-weight: 500; font-size: 34px; opacity: .75; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="89.6">
+  <img id="bg" src="placeholder-speaker.svg" alt="" />
+  <section id="s0" class="seg">
+    <div class="lbl"><b>CAP-01</b><span>Soft Phrase</span><em>SC-01 · Ivory Rose</em></div>
+    <div id="cap0" class="capbox"></div>
+  </section>
+  <section id="s1" class="seg">
+    <div class="lbl"><b>CAP-02</b><span>Soft Blur-In</span><em>SC-01 · Ivory Rose</em></div>
+    <div id="cap1" class="capbox"></div>
+  </section>
+  <section id="s2" class="seg">
+    <div class="lbl"><b>CAP-03</b><span>Karaoke Fill</span><em>SC-02 · Hormozi Gold</em></div>
+    <div id="cap2" class="capbox"></div>
+  </section>
+  <section id="s3" class="seg">
+    <div class="lbl"><b>CAP-04</b><span>Hormozi Punch</span><em>SC-02 · Hormozi Gold</em></div>
+    <div id="cap3" class="capbox"></div>
+  </section>
+  <section id="s4" class="seg">
+    <div class="lbl"><b>CAP-05</b><span>Beast Bounce</span><em>SC-03 · Beast Lime</em></div>
+    <div id="cap4" class="capbox"></div>
+  </section>
+  <section id="s5" class="seg">
+    <div class="lbl"><b>CAP-06</b><span>Clean Educator</span><em>SC-09 · Mint Calm</em></div>
+    <div id="cap5" class="capbox"></div>
+  </section>
+  <section id="s6" class="seg">
+    <div class="lbl"><b>CAP-07</b><span>Highlight Pill</span><em>SC-05 · Cyber Magenta</em></div>
+    <div id="cap6" class="capbox"></div>
+  </section>
+  <section id="s7" class="seg">
+    <div class="lbl"><b>CAP-08</b><span>Underline Sweep</span><em>SC-04 · Neon Blue</em></div>
+    <div id="cap7" class="capbox"></div>
+  </section>
+  <section id="s8" class="seg">
+    <div class="lbl"><b>CAP-09</b><span>Neon Glow</span><em>SC-04 · Neon Blue</em></div>
+    <div id="cap8" class="capbox"></div>
+  </section>
+  <section id="s9" class="seg">
+    <div class="lbl"><b>CAP-10</b><span>Outline to Fill</span><em>SC-12 · Mono Editorial</em></div>
+    <div id="cap9" class="capbox"></div>
+  </section>
+  <section id="s10" class="seg">
+    <div class="lbl"><b>CAP-11</b><span>Gradient Sweep</span><em>SC-05 · Cyber Magenta</em></div>
+    <div id="cap10" class="capbox"></div>
+  </section>
+  <section id="s11" class="seg">
+    <div class="lbl"><b>CAP-12</b><span>3D Extrude</span><em>SC-10 · Sunset</em></div>
+    <div id="cap11" class="capbox"></div>
+  </section>
+  <section id="s12" class="seg">
+    <div class="lbl"><b>CAP-13</b><span>Typewriter</span><em>SC-06 · Teal Eco</em></div>
+    <div id="cap12" class="capbox"></div>
+  </section>
+  <section id="s13" class="seg">
+    <div class="lbl"><b>CAP-14</b><span>Word Blur-Rise</span><em>SC-01 · Ivory Rose</em></div>
+    <div id="cap13" class="capbox"></div>
+  </section>
+  <section id="s14" class="seg">
+    <div class="lbl"><b>CAP-15</b><span>Stacked Emphasis</span><em>SC-07 · Espresso Copper</em></div>
+    <div id="cap14" class="capbox"></div>
+  </section>
+  <section id="s15" class="seg">
+    <div class="lbl"><b>CAP-16</b><span>Two-Tone Lead</span><em>SC-08 · Navy Cream</em></div>
+    <div id="cap15" class="capbox"></div>
+  </section>
+  <section id="s16" class="seg">
+    <div class="lbl"><b>CAP-17</b><span>Emoji Inline</span><em>SC-02 · Hormozi Gold</em></div>
+    <div id="cap16" class="capbox"></div>
+  </section>
+  <section id="s17" class="seg">
+    <div class="lbl"><b>CAP-18</b><span>Cinematic Lower</span><em>SC-07 · Espresso Copper</em></div>
+    <div id="cap17" class="capbox"></div>
+  </section>
+  <section id="s18" class="seg">
+    <div class="lbl"><b>CAP-19</b><span>Ruqaa Script</span><em>SC-07 · Espresso Copper</em></div>
+    <div id="cap18" class="capbox"></div>
+  </section>
+  <section id="s19" class="seg">
+    <div class="lbl"><b>CAP-20</b><span>Editorial Serif</span><em>SC-12 · Mono Editorial</em></div>
+    <div id="cap19" class="capbox"></div>
+  </section>
+  <section id="s20" class="seg">
+    <div class="lbl"><b>CAP-21</b><span>Kufi Statement</span><em>SC-14 · Crimson</em></div>
+    <div id="cap20" class="capbox"></div>
+  </section>
+  <section id="s21" class="seg">
+    <div class="lbl"><b>CAP-22</b><span>Bubble Pop</span><em>SC-11 · Royal Purple</em></div>
+    <div id="cap21" class="capbox"></div>
+  </section>
+  <section id="s22" class="seg">
+    <div class="lbl"><b>CAP-23</b><span>Glitch RGB</span><em>SC-04 · Neon Blue</em></div>
+    <div id="cap22" class="capbox"></div>
+  </section>
+  <section id="s23" class="seg">
+    <div class="lbl"><b>CAP-24</b><span>Spotlight Focus</span><em>SC-01 · Ivory Rose</em></div>
+    <div id="cap23" class="capbox"></div>
+  </section>
+  <section id="s24" class="seg">
+    <div class="lbl"><b>CAP-25</b><span>One Word</span><em>SC-12 · Mono Editorial</em></div>
+    <div id="cap24" class="capbox"></div>
+  </section>
+  <section id="s25" class="seg">
+    <div class="lbl"><b>CAP-26</b><span>Kashida Stretch</span><em>SC-07 · Espresso Copper</em></div>
+    <div id="cap25" class="capbox"></div>
+  </section>
+  <section id="s26" class="seg">
+    <div class="lbl"><b>CAP-27</b><span>Marker Highlight</span><em>SC-02 · Hormozi Gold</em></div>
+    <div id="cap26" class="capbox"></div>
+  </section>
+  <section id="s27" class="seg">
+    <div class="lbl"><b>CAP-28</b><span>Retro Offset</span><em>SC-10 · Sunset</em></div>
+    <div id="cap27" class="capbox"></div>
+  </section>
+</div>
+<script>
+  gsap.defaults({ lazy: false });
+  const tl = gsap.timeline({ paused: true });
+  const SEG = 3.2, CAPS = [{"sid": "CAP-01", "scheme": "SC-01", "S": 0.0}, {"sid": "CAP-02", "scheme": "SC-01", "S": 3.2}, {"sid": "CAP-03", "scheme": "SC-02", "S": 6.4}, {"sid": "CAP-04", "scheme": "SC-02", "S": 9.600000000000001}, {"sid": "CAP-05", "scheme": "SC-03", "S": 12.8}, {"sid": "CAP-06", "scheme": "SC-09", "S": 16.0}, {"sid": "CAP-07", "scheme": "SC-05", "S": 19.200000000000003}, {"sid": "CAP-08", "scheme": "SC-04", "S": 22.400000000000002}, {"sid": "CAP-09", "scheme": "SC-04", "S": 25.6}, {"sid": "CAP-10", "scheme": "SC-12", "S": 28.8}, {"sid": "CAP-11", "scheme": "SC-05", "S": 32.0}, {"sid": "CAP-12", "scheme": "SC-10", "S": 35.2}, {"sid": "CAP-13", "scheme": "SC-06", "S": 38.400000000000006}, {"sid": "CAP-14", "scheme": "SC-01", "S": 41.6}, {"sid": "CAP-15", "scheme": "SC-07", "S": 44.800000000000004}, {"sid": "CAP-16", "scheme": "SC-08", "S": 48.0}, {"sid": "CAP-17", "scheme": "SC-02", "S": 51.2}, {"sid": "CAP-18", "scheme": "SC-07", "S": 54.400000000000006}, {"sid": "CAP-19", "scheme": "SC-07", "S": 57.6}, {"sid": "CAP-20", "scheme": "SC-12", "S": 60.800000000000004}, {"sid": "CAP-21", "scheme": "SC-14", "S": 64.0}, {"sid": "CAP-22", "scheme": "SC-11", "S": 67.2}, {"sid": "CAP-23", "scheme": "SC-04", "S": 70.4}, {"sid": "CAP-24", "scheme": "SC-01", "S": 73.60000000000001}, {"sid": "CAP-25", "scheme": "SC-12", "S": 76.80000000000001}, {"sid": "CAP-26", "scheme": "SC-07", "S": 80.0}, {"sid": "CAP-27", "scheme": "SC-02", "S": 83.2}, {"sid": "CAP-28", "scheme": "SC-10", "S": 86.4}], WORDS = [[{"w": "في", "s": 0.25, "e": 0.5}, {"w": "دقيقة", "s": 0.55, "e": 0.8}, {"w": "واحدة", "s": 0.85, "e": 1.1}, {"w": "تتعلم", "s": 1.15, "e": 1.4}, {"w": "بناء", "s": 1.45, "e": 1.7}, {"w": "موقع", "s": 1.75, "e": 2.0}], [{"w": "في", "s": 3.45, "e": 3.7}, {"w": "دقيقة", "s": 3.75, "e": 4.0}, {"w": "واحدة", "s": 4.05, "e": 4.3}, {"w": "تتعلم", "s": 4.35, "e": 4.6}, {"w": "بناء", "s": 4.65, "e": 4.9}, {"w": "موقع", "s": 4.95, "e": 5.2}], [{"w": "في", "s": 6.65, "e": 6.9}, {"w": "دقيقة", "s": 6.95, "e": 7.2}, {"w": "واحدة", "s": 7.25, "e": 7.5}, {"w": "تتعلم", "s": 7.55, "e": 7.8}, {"w": "بناء", "s": 7.85, "e": 8.1}, {"w": "موقع", "s": 8.15, "e": 8.4}], [{"w": "في", "s": 9.85, "e": 10.1}, {"w": "دقيقة", "s": 10.15, "e": 10.4}, {"w": "واحدة", "s": 10.45, "e": 10.7}, {"w": "تتعلم", "s": 10.75, "e": 11.0}, {"w": "بناء", "s": 11.05, "e": 11.3}, {"w": "موقع", "s": 11.35, "e": 11.6}], [{"w": "في", "s": 13.05, "e": 13.3}, {"w": "دقيقة", "s": 13.35, "e": 13.6}, {"w": "واحدة", "s": 13.65, "e": 13.9}, {"w": "تتعلم", "s": 13.95, "e": 14.2}, {"w": "بناء", "s": 14.25, "e": 14.5}, {"w": "موقع", "s": 14.55, "e": 14.8}], [{"w": "في", "s": 16.25, "e": 16.5}, {"w": "دقيقة", "s": 16.55, "e": 16.8}, {"w": "واحدة", "s": 16.85, "e": 17.1}, {"w": "تتعلم", "s": 17.15, "e": 17.4}, {"w": "بناء", "s": 17.45, "e": 17.7}, {"w": "موقع", "s": 17.75, "e": 18.0}], [{"w": "في", "s": 19.45, "e": 19.7}, {"w": "دقيقة", "s": 19.75, "e": 20.0}, {"w": "واحدة", "s": 20.05, "e": 20.3}, {"w": "تتعلم", "s": 20.35, "e": 20.6}, {"w": "بناء", "s": 20.65, "e": 20.9}, {"w": "موقع", "s": 20.95, "e": 21.2}], [{"w": "في", "s": 22.65, "e": 22.9}, {"w": "دقيقة", "s": 22.95, "e": 23.2}, {"w": "واحدة", "s": 23.25, "e": 23.5}, {"w": "تتعلم", "s": 23.55, "e": 23.8}, {"w": "بناء", "s": 23.85, "e": 24.1}, {"w": "موقع", "s": 24.15, "e": 24.4}], [{"w": "في", "s": 25.85, "e": 26.1}, {"w": "دقيقة", "s": 26.15, "e": 26.4}, {"w": "واحدة", "s": 26.45, "e": 26.7}, {"w": "تتعلم", "s": 26.75, "e": 27.0}, {"w": "بناء", "s": 27.05, "e": 27.3}, {"w": "موقع", "s": 27.35, "e": 27.6}], [{"w": "في", "s": 29.05, "e": 29.3}, {"w": "دقيقة", "s": 29.35, "e": 29.6}, {"w": "واحدة", "s": 29.65, "e": 29.9}, {"w": "تتعلم", "s": 29.95, "e": 30.2}, {"w": "بناء", "s": 30.25, "e": 30.5}, {"w": "موقع", "s": 30.55, "e": 30.8}], [{"w": "في", "s": 32.25, "e": 32.5}, {"w": "دقيقة", "s": 32.55, "e": 32.8}, {"w": "واحدة", "s": 32.85, "e": 33.1}, {"w": "تتعلم", "s": 33.15, "e": 33.4}, {"w": "بناء", "s": 33.45, "e": 33.7}, {"w": "موقع", "s": 33.75, "e": 34.0}], [{"w": "في", "s": 35.45, "e": 35.7}, {"w": "دقيقة", "s": 35.75, "e": 36.0}, {"w": "واحدة", "s": 36.05, "e": 36.3}, {"w": "تتعلم", "s": 36.35, "e": 36.6}, {"w": "بناء", "s": 36.65, "e": 36.9}, {"w": "موقع", "s": 36.95, "e": 37.2}], [{"w": "في", "s": 38.65, "e": 38.9}, {"w": "دقيقة", "s": 38.95, "e": 39.2}, {"w": "واحدة", "s": 39.25, "e": 39.5}, {"w": "تتعلم", "s": 39.55, "e": 39.8}, {"w": "بناء", "s": 39.85, "e": 40.1}, {"w": "موقع", "s": 40.15, "e": 40.4}], [{"w": "في", "s": 41.85, "e": 42.1}, {"w": "دقيقة", "s": 42.15, "e": 42.4}, {"w": "واحدة", "s": 42.45, "e": 42.7}, {"w": "تتعلم", "s": 42.75, "e": 43.0}, {"w": "بناء", "s": 43.05, "e": 43.3}, {"w": "موقع", "s": 43.35, "e": 43.6}], [{"w": "في", "s": 45.05, "e": 45.3}, {"w": "دقيقة", "s": 45.35, "e": 45.6}, {"w": "واحدة", "s": 45.65, "e": 45.9}, {"w": "تتعلم", "s": 45.95, "e": 46.2}, {"w": "بناء", "s": 46.25, "e": 46.5}, {"w": "موقع", "s": 46.55, "e": 46.8}], [{"w": "في", "s": 48.25, "e": 48.5}, {"w": "دقيقة", "s": 48.55, "e": 48.8}, {"w": "واحدة", "s": 48.85, "e": 49.1}, {"w": "تتعلم", "s": 49.15, "e": 49.4}, {"w": "بناء", "s": 49.45, "e": 49.7}, {"w": "موقع", "s": 49.75, "e": 50.0}], [{"w": "في", "s": 51.45, "e": 51.7}, {"w": "دقيقة", "s": 51.75, "e": 52.0}, {"w": "واحدة", "s": 52.05, "e": 52.3}, {"w": "تتعلم", "s": 52.35, "e": 52.6}, {"w": "بناء", "s": 52.65, "e": 52.9}, {"w": "موقع", "s": 52.95, "e": 53.2}], [{"w": "في", "s": 54.65, "e": 54.9}, {"w": "دقيقة", "s": 54.95, "e": 55.2}, {"w": "واحدة", "s": 55.25, "e": 55.5}, {"w": "تتعلم", "s": 55.55, "e": 55.8}, {"w": "بناء", "s": 55.85, "e": 56.1}, {"w": "موقع", "s": 56.15, "e": 56.4}], [{"w": "في", "s": 57.85, "e": 58.1}, {"w": "دقيقة", "s": 58.15, "e": 58.4}, {"w": "واحدة", "s": 58.45, "e": 58.7}, {"w": "تتعلم", "s": 58.75, "e": 59.0}, {"w": "بناء", "s": 59.05, "e": 59.3}, {"w": "موقع", "s": 59.35, "e": 59.6}], [{"w": "في", "s": 61.05, "e": 61.3}, {"w": "دقيقة", "s": 61.35, "e": 61.6}, {"w": "واحدة", "s": 61.65, "e": 61.9}, {"w": "تتعلم", "s": 61.95, "e": 62.2}, {"w": "بناء", "s": 62.25, "e": 62.5}, {"w": "موقع", "s": 62.55, "e": 62.8}], [{"w": "في", "s": 64.25, "e": 64.5}, {"w": "دقيقة", "s": 64.55, "e": 64.8}, {"w": "واحدة", "s": 64.85, "e": 65.1}, {"w": "تتعلم", "s": 65.15, "e": 65.4}, {"w": "بناء", "s": 65.45, "e": 65.7}, {"w": "موقع", "s": 65.75, "e": 66.0}], [{"w": "في", "s": 67.45, "e": 67.7}, {"w": "دقيقة", "s": 67.75, "e": 68.0}, {"w": "واحدة", "s": 68.05, "e": 68.3}, {"w": "تتعلم", "s": 68.35, "e": 68.6}, {"w": "بناء", "s": 68.65, "e": 68.9}, {"w": "موقع", "s": 68.95, "e": 69.2}], [{"w": "في", "s": 70.65, "e": 70.9}, {"w": "دقيقة", "s": 70.95, "e": 71.2}, {"w": "واحدة", "s": 71.25, "e": 71.5}, {"w": "تتعلم", "s": 71.55, "e": 71.8}, {"w": "بناء", "s": 71.85, "e": 72.1}, {"w": "موقع", "s": 72.15, "e": 72.4}], [{"w": "في", "s": 73.85, "e": 74.1}, {"w": "دقيقة", "s": 74.15, "e": 74.4}, {"w": "واحدة", "s": 74.45, "e": 74.7}, {"w": "تتعلم", "s": 74.75, "e": 75.0}, {"w": "بناء", "s": 75.05, "e": 75.3}, {"w": "موقع", "s": 75.35, "e": 75.6}], [{"w": "في", "s": 77.05, "e": 77.3}, {"w": "دقيقة", "s": 77.35, "e": 77.6}, {"w": "واحدة", "s": 77.65, "e": 77.9}, {"w": "تتعلم", "s": 77.95, "e": 78.2}, {"w": "بناء", "s": 78.25, "e": 78.5}, {"w": "موقع", "s": 78.55, "e": 78.8}], [{"w": "في", "s": 80.25, "e": 80.5}, {"w": "دقيقة", "s": 80.55, "e": 80.8}, {"w": "واحدة", "s": 80.85, "e": 81.1}, {"w": "تتعلم", "s": 81.15, "e": 81.4}, {"w": "بناء", "s": 81.45, "e": 81.7}, {"w": "موقع", "s": 81.75, "e": 82.0}], [{"w": "في", "s": 83.45, "e": 83.7}, {"w": "دقيقة", "s": 83.75, "e": 84.0}, {"w": "واحدة", "s": 84.05, "e": 84.3}, {"w": "تتعلم", "s": 84.35, "e": 84.6}, {"w": "بناء", "s": 84.65, "e": 84.9}, {"w": "موقع", "s": 84.95, "e": 85.2}], [{"w": "في", "s": 86.65, "e": 86.9}, {"w": "دقيقة", "s": 86.95, "e": 87.2}, {"w": "واحدة", "s": 87.25, "e": 87.5}, {"w": "تتعلم", "s": 87.55, "e": 87.8}, {"w": "بناء", "s": 87.85, "e": 88.1}, {"w": "موقع", "s": 88.15, "e": 88.4}]];
+  CAPS.forEach((c, n) => {
+    tl.set("#s" + n, { opacity: 1 }, c.S);
+    tl.set("#s" + n, { opacity: 0 }, c.S + SEG - 0.001);
+    const cap = { i: [0, 1, 2, 3, 4, 5], key: 5, t1: c.S + SEG - 0.2 };
+    CS.apply(tl, [cap], WORDS[n], c.sid, c.scheme, { root: "#cap" + n });
+  });
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = tl;
+  // Browser preview (open index.html?play): fit to the window and loop. Renders ignore this.
+  if (location.search.indexOf("play") >= 0) {
+    document.body.style.zoom = Math.min(innerWidth / 1080, innerHeight / 1920);
+    tl.eventCallback("onComplete", function () { tl.restart(); });
+    tl.play(0);
+  }
+</script>
+</body>
+</html>

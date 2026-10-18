@@ -1,0 +1,56 @@
+montage-crew License, version 1.0
+
+Copyright (c) 2026 the author of montage-crew, credited at the top of README.md.
+
+"The Software" means the files in this package written by the author: the skill
+text, references, scripts, agent files, templates, kits and setup scripts. It does
+not include the third-party files listed in NOTICES.md, or any file downloaded
+at install time or on first use.
+
+1. Use and modify. You may use, copy and modify the Software free of charge,
+   for personal or commercial work.
+
+2. Your videos are yours. Videos, images, captions, timelines and any other
+   output you make with the Software belong to you. You may use them for any
+   purpose, including commercial use (client work, ads, monetised channels).
+   No credit is required.
+
+3. Sharing. You may give copies of the Software, changed or unchanged, to
+   others free of charge, as long as you keep this LICENSE and NOTICES.md with
+   it and clearly mark the files you changed.
+
+4. No selling. You may not sell the Software or a changed version of it, charge
+   for access to it, or include it in a paid product whose main value is the
+   Software (for example a paid skill pack, a paid download or a subscription
+   that delivers it). Selling your own editing services, or the videos you make
+   with the Software, is allowed (see section 2).
+
+5. Third-party parts. Fonts, sound effects, templates, reference texts and the
+   other files listed in NOTICES.md keep their own licences, and those licences
+   apply to those files. Files downloaded at install time or on first use (for
+   example speech and matting models, and GSAP) are not part of the Software
+   and come under their own terms.
+
+6. Names. This licence gives no right to use the author's name, or to say that
+   the author endorses your product or videos.
+
+7. No warranty. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+   EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+   IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+8. Ending. If you break these terms, your rights under this licence end. They
+   come back if you fix the problem within 30 days of learning about it.
+
+---
+
+ملخص بالعربية (للتوضيح فقط، والنص الإنجليزي أعلاه هو المعتمد):
+
+- يمكنك استخدام المهارة ونسخها وتعديلها مجاناً، لعمل شخصي أو تجاري.
+- الفيديوهات وكل ما تصنعه بالمهارة ملكك، ويمكنك استخدامه تجارياً بدون ذكر المصدر.
+- يمكنك إعطاء نسخة مجانية لغيرك، بشرط إبقاء LICENSE و NOTICES.md معها وتوضيح الملفات التي عدّلتها.
+- لا يجوز بيع المهارة أو نسخة معدّلة منها، ولا وضعها داخل منتج مدفوع قيمته الأساسية هي المهارة. بيع خدمات المونتاج أو الفيديوهات التي تصنعها مسموح.
+- المكونات الخارجية المذكورة في NOTICES.md، والملفات التي تُنزَّل عند التثبيت أو أول استخدام، تبقى برخصها الخاصة.
+- المهارة مقدَّمة كما هي، بدون أي ضمان.

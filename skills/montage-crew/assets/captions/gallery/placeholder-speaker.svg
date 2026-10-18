@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <!-- Neutral stand-in for a talking-head frame (no real person). Used by the caption gallery and the mg-kit demo. -->
+  <defs>
+    <radialGradient id="wall" cx="0.42" cy="0.32" r="0.95">
+      <stop offset="0" stop-color="#5a5f6e"/>
+      <stop offset="0.55" stop-color="#2f323c"/>
+      <stop offset="1" stop-color="#15161b"/>
+    </radialGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a8f9c"/>
+      <stop offset="1" stop-color="#4a4e59"/>
+    </linearGradient>
+    <radialGradient id="head" cx="0.4" cy="0.35" r="0.75">
+      <stop offset="0" stop-color="#b9bcc6"/>
+      <stop offset="1" stop-color="#6d717d"/>
+    </radialGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2"/></filter>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#wall)"/>
+  <ellipse cx="840" cy="420" rx="160" ry="160" fill="#ffffff" opacity="0.035"/>
+  <g filter="url(#soft)">
+    <path d="M140 1920 C150 1560 300 1410 540 1395 C780 1410 930 1560 940 1920 Z" fill="url(#body)"/>
+    <rect x="478" y="1150" width="124" height="230" rx="50" fill="#7c808c"/>
+    <ellipse cx="540" cy="930" rx="205" ry="255" fill="url(#head)"/>
+  </g>
+</svg>

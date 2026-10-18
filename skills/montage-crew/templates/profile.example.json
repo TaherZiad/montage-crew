@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "created": "2026-01-01T10:00:00Z",
+  "updated": "2026-01-01T10:00:00Z",
+  "editor": "none",
+  "resolve_live": { "enabled": false, "python": null, "mcp_dir": null },
+  "format": "9x16",
+  "footage": "camera",
+  "voice": { "kind": "own", "ai_provider": null, "ai_key_env": null, "ai_voice_id": null },
+  "language": { "dialect": "msa", "dialect_note": "", "set_words": ["اكشن", "كت", "نعيد", "من جديد"], "digits": "western" },
+  "brand": { "bg": null, "text": null, "accent": null, "font_head": null, "font_body": null, "logo": null, "handle": "", "cta": "" },
+  "mode": "fast",
+  "paths": { "work_dir": "~/montage-crew-work", "output_dir": "~/Videos/montage-crew" },
+  "detected": { "os": "windows", "gpu": "none", "ffmpeg": "7.1", "python": "3.12", "node": "20.11", "at": "2026-01-01T10:00:00Z" }
+}

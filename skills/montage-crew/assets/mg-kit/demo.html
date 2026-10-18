@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<title>mg-kit demo — layout modes + idea MG</title>
+<!-- Copy into a HyperFrames project as index.html with gsap.min.js, mg-kit.js/.css and fonts/ beside it
+     (fix the ../ paths). The <img> stands in for the speaker's footage: in a real segment use
+     <video id="aroll" src="aroll_comp.mp4" data-start="0" data-duration="9" data-media-start="<segment start in the A-roll>" muted playsinline></video>
+     inside the UNTIMED .mg-spk wrapper. Render opaque (no alpha needed): this segment REPLACES the A-roll for its range. -->
+<script src="../gsap.min.js"></script>
+<script>window.gsap || document.write('<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js" integrity="sha256-wXS/zlOnKUGNV6ithiXnJHx5OiL++OKFHjz6PenNgoA=" crossorigin="anonymous"><' + '/script>');</script>
+<link rel="stylesheet" href="mg-kit.css" />
+<script src="mg-kit.js"></script>
+<style>
+  @font-face { font-family: "Cairo"; src: url("../fonts/Cairo-VF.ttf") format("truetype"); font-weight: 200 1000; }
+  @font-face { font-family: "IBM Plex Sans Arabic"; src: url("../fonts/IBMPlexSansArabic-Regular.ttf") format("truetype"); font-weight: 400; }
+  @font-face { font-family: "IBM Plex Sans Arabic"; src: url("../fonts/IBMPlexSansArabic-SemiBold.ttf") format("truetype"); font-weight: 600; }
+  @font-face { font-family: "JetBrains Mono"; src: url("../fonts/JetBrainsMono-VF.ttf") format("truetype"); font-weight: 100 800; }
+  html, body { margin: 0; width: 1080px; height: 1920px; background: #000; } /* size for plain-browser preview */
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--mg-dark); }
+  .layer { position: absolute; inset: 0; }
+  #take-title { position: absolute; left: 90px; right: 90px; top: 210px; }
+</style>
+</head>
+<body>
+<div id="root" dir="rtl" data-composition-id="mgdemo" data-start="0" data-width="1080" data-height="1920" data-duration="10">
+  <div id="world" class="mg-stage mg-grid mg-glow"></div>
+  <div id="spk-sh" class="mg-spk-shadow"><div id="spk" class="mg-spk"><img src="../captions/gallery/placeholder-speaker.svg" alt="" /></div></div>
+  <div id="ui" class="layer"></div>
+  <div id="take" class="mg-stage mg-grid">
+    <div id="take-title" class="mg-head">مو كل <span class="mg-acc">أداة</span> تحميك</div>
+    <svg id="take-svg" class="mg-svg" viewBox="0 0 1080 1920">
+      <path id="shape" class="mg-path" style="stroke:var(--mg-accent);stroke-width:12"
+            d="M540 760 a240 240 0 1 0 0.1 0 Z" />
+    </svg>
+  </div>
+</div>
+<script>
+document.fonts.ready.then(() => {
+  const tl = gsap.timeline({ paused: true }), F = MG.F;
+  const ui = document.getElementById("ui");
+
+  // 1) FULL -> SPLIT-TOP: he talks top, the idea builds bottom (prompt -> site)
+  MG.frameTo(tl, "#spk", 0.9, "split-top", { dur: 0.8 });
+  const P = MG.ui.prompt(ui, { rect: [90, 1090, 900, 130], placeholder: "اكتب طلبك…" });
+  MG.uiIn(tl, P.box, 1.5, "rise");
+  const tEnd = MG.type(tl, P.field, 1.8, "سويلي موقع لمطعم", { cps: 18, caret: P.caret });
+  const cur = MG.cursor(ui);
+  MG.click(tl, cur, tEnd, [700, 1500], [158, 1160], { press: P.send }); // RTL: send sits LEFT
+  const B = MG.ui.browser(ui, { rect: [140, 1250, 800, 220], url: "my-restaurant.com" });
+  MG.uiIn(tl, B.box, tEnd + 0.8, "tilt");
+  MG.out(tl, [P.box, B.box, cur], 4.3);
+
+  // 2) SPLIT -> CIRCLE PiP: the speaker in a corner while an AI chat plays (RTL: my bubble left, AI right)
+  const g = MG.frameTo(tl, "#spk", 4.2, "circle-bl", { dur: 0.8 });
+  const ring = MG.ring(tl, ui, 4.95, g);
+  const C = MG.ui.chat(ui, { rect: [90, 300, 900, 760], msgs: [
+    { who: "me", text: "شلون أحمي موقعي؟" },
+    { who: "ai", text: "أول شي: لا تخلي مفاتيح الـAPI بالكود." } ] });
+  MG.chatPlay(tl, C, [4.8, 5.6]);
+
+  // 3) TAKEOVER: full-frame metaphor (circle -> shield morph), the voice continues
+  MG.takeover(tl, "#take", 6.0, { style: "wipe", from: "right" });
+  MG.springWords(tl, "#take-title", [6.2, 6.45, 6.7]);
+  MG.draw(tl, "#shape", 6.3, { dur: 0.5 });
+  MG.morph(tl, "#shape", 7.0, "M540 520 L760 610 L760 820 C760 960 660 1060 540 1110 C420 1060 320 960 320 820 L320 610 Z", { dur: 0.5 });
+  MG.shockwave(tl, "#take", 7.5, { at: [540, 820] });
+
+  // 4) GIVE BACK -> FULL face for the punchline
+  tl.to([ring, C.box], { opacity: 0, duration: 4 * F }, 8.3);
+  MG.giveBack(tl, "#take", 8.4);
+  MG.frameTo(tl, "#spk", 8.4, "full", { dur: 0.8 });
+
+  (window.__timelines = window.__timelines || {})["mgdemo"] = tl; // registry exists under HyperFrames; guard = plain-browser preview
+});
+</script>
+</body>
+</html>

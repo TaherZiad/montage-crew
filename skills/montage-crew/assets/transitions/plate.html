@@ -1,0 +1,56 @@
+<!doctype html>
+<!--
+  Transition plate (montage-crew). Two modes, picked from the function name in CFG.fn:
+   - OVERLAY (coverWipe, ink, leak, …): transparent page → `npx hyperframes@0.8.151 render --format mov` = ProRes 4444 alpha plate.
+     Drop it on a track ABOVE a hard cut in Resolve, with its cut frame (CFG.pre + CFG.dur*cut) on the edit.
+   - SCENE (whip, zoom, push, cube, …): #A / #B are the two sides. plate.mjs puts a.mp4 / b.mp4 (the tail of shot A and the
+     head of shot B, with handles) inside them → render mp4 → the "junction clip" replaces the cut on V1.
+  Do not edit by hand for each use: `node plate.mjs <fn> …` writes a copy with CFG filled in (see references/transitions-library.md §4).
+  Preview in a browser: plate.html#{"fn":"ink","dur":0.6}   (URL hash = JSON that overrides CFG; seek with window.__timelines.plate)
+-->
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <title>Transition plate</title>
+  <script src="gsap.min.js"></script>
+  <script src="tr-kit.js"></script>
+  <style>
+    @font-face { font-family: "Alexandria"; src: url("Alexandria-VF.ttf") format("truetype"); font-weight: 100 900; }
+    html, body { margin: 0; width: 100%; height: 100%; background: transparent; overflow: hidden; }
+    #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    .scene { position: absolute; inset: 0; overflow: hidden; }
+    .scene > video { width: 100%; height: 100%; object-fit: cover; }
+    .ph { display: grid; place-items: center; font: 800 220px/1 Alexandria, sans-serif; }
+  </style>
+</head>
+<body>
+<div id="root" data-composition-id="plate" data-start="0" data-width="1080" data-height="1920" data-duration="1">
+  <!--SCENES-->
+  <div id="A" class="scene ph" style="background:#181813;color:#ECECDE">A</div>
+  <div id="B" class="scene ph" style="background:#ECECDE;color:#181813">B</div>
+  <!--/SCENES-->
+  <div id="fx" class="scene"></div>
+</div>
+<script>
+  /*CFG*/ const CFG = { fn: "coverWipe", dur: 0.5, pre: 0, post: 0, o: {} }; /*/CFG*/
+  try { if (location.hash.length > 2) Object.assign(CFG, JSON.parse(decodeURIComponent(location.hash.slice(1)))); } catch (e) {}
+  const root = document.getElementById("root");
+  root.dataset.duration = String(+(CFG.pre + CFG.dur + CFG.post).toFixed(4));
+  const tl = gsap.timeline({ paused: true });
+  const kind = TR.kind(CFG.fn);
+  if (!kind || kind === "special") throw new Error("tr-kit: " + CFG.fn + " is not a plate transition (morph/dolly/typeZoom live inside MG compositions)");
+  if (kind === "overlay") {
+    for (const id of ["A", "B"]) { const e = document.getElementById(id); if (e) e.remove(); }
+    TR[CFG.fn](tl, "#fx", CFG.pre, CFG.dur, CFG.o || {});
+  } else {
+    TR[CFG.fn](tl, "#A", "#B", CFG.pre, CFG.dur, CFG.o || {});
+  }
+  tl.to({}, { duration: CFG.pre + CFG.dur + CFG.post }, 0); // hold the full length
+  window.TR_CUES = TR.cues;
+  window.__timelines = window.__timelines || {}; // runtime provides it; kept for plain-browser preview
+  window.__timelines["plate"] = tl;
+  if (CFG.seek != null) tl.seek(CFG.seek); // preview only: plate.html#{"fn":"ink","dur":0.6,"seek":0.3}
+</script>
+</body>
+</html>

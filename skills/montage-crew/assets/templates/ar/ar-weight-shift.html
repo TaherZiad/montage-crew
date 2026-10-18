@@ -1,0 +1,378 @@
+<!doctype html>
+<!-- Modified from the HyperFrames registry item caption-weight-shift (registry/components), (c) HeyGen / HyperFrames contributors, Apache License 2.0 (https://github.com/heygen-com/hyperframes, see NOTICES.md). Changes: Arabic/RTL adaptation (text, direction, fonts, timing). -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Weight Shift</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js" integrity="sha256-wXS/zlOnKUGNV6ithiXnJHx5OiL++OKFHjz6PenNgoA=" crossorigin="anonymous"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        margin: 0;
+        overflow: hidden;
+        background: transparent;
+        font-family: "Cairo", sans-serif;
+      }
+
+      #weight-shift {
+        pointer-events: none;
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: transparent;
+      }
+
+      .caption-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        pointer-events: none;
+        transform: translateZ(0);
+      }
+
+      .safe-zone {
+        position: absolute;
+        bottom: 560px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 940px;
+        height: 330px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .caption-group {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 940px;
+        height: 330px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform-origin: 50% 50%;
+        will-change: transform;
+        backface-visibility: hidden;
+      }
+
+      .caption-copy {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        max-width: 940px;
+        text-align: center;
+      }
+
+      .caption-line {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: max-content;
+        max-width: 940px;
+        line-height: 1.4;
+        white-space: nowrap;
+        color: #ffffff;
+        font-family: "Cairo", sans-serif;
+        font-weight: 300;
+        font-size: 72px;
+        letter-spacing: 0; direction: rtl;
+        text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+        
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="weight-shift"
+      data-composition-id="caption-weight-shift"
+      data-timeline-locked
+      data-start="0"
+      data-duration="6"
+      data-fps="30"
+      data-width="1080"
+      data-height="1920"
+    >
+      <div class="caption-layer" aria-hidden="true">
+        <div id="caption-stage" class="safe-zone"></div>
+      </div>
+    </div>
+
+    <script>
+      var DURATION = 6;
+      var SAFE_ZONE_WIDTH = 940;
+      var MAX_LINE_WIDTH = SAFE_ZONE_WIDTH - 40;
+      var CAPTION_FONT_SIZE = 84;
+      var MAX_WORDS_PER_GROUP = 4;
+      var WORD_SPACING = 12;
+      var PAUSE_THRESHOLD = 0.1;
+      var ENTRY_DURATION = 100 / 1000;
+      var WEIGHT_TRANSITION = 100 / 1000;
+      var FONT_WIDTH_SAFETY = 1.14;
+      var FONT_WEIGHT_LIGHT = 300;
+      var FONT_WEIGHT_BOLD = 800;
+
+      var TRANSCRIPT = [
+          { text: "هسه", start: 0.0, end: 0.3 },
+          { text: "الذكاء", start: 0.3, end: 0.7 },
+          { text: "الاصطناعي", start: 0.7, end: 1.2 },
+          { text: "يسوي", start: 1.2, end: 1.5 },
+          { text: "مونتاج", start: 1.5, end: 1.9 },
+          { text: "كامل", start: 1.9, end: 2.3 },
+          { text: "بدقيقة", start: 2.4, end: 2.8 },
+          { text: "وحدة", start: 2.8, end: 3.2 },
+          { text: "بس", start: 3.4, end: 3.6 },
+          { text: "لازم", start: 3.6, end: 3.9 },
+          { text: "تعرف", start: 3.9, end: 4.3 },
+          { text: "شلون", start: 4.3, end: 4.7 },
+          { text: "تستخدمه", start: 4.7, end: 5.2 },
+          { text: "صح", start: 5.2, end: 5.6 }
+        ];
+
+      function normalizeWords(rawWords) {
+        return rawWords
+          .map(function (item) {
+            return {
+              text: String(item.word || item.text || "").trim(),
+              start: Math.max(0, Number(item.start) || 0),
+              end: Math.min(DURATION, Math.max(Number(item.start) || 0, Number(item.end) || 0)),
+            };
+          })
+          .filter(function (word) {
+            return word.text.length > 0;
+          });
+      }
+
+      var _fitCanvas = document.createElement("canvas");
+      var _fitCtx = _fitCanvas.getContext("2d");
+      function fitFontSize(text, baseFontSize, fontWeight, fontFamily, maxWidth) {
+        var size = baseFontSize;
+        var minSize = Math.floor(baseFontSize * 0.45);
+        while (size > minSize) {
+          _fitCtx.font = fontWeight + " " + size + "px " + fontFamily;
+          if (_fitCtx.measureText(text).width <= maxWidth) return size;
+          size -= 2;
+        }
+        return minSize;
+      }
+
+      var measureCanvas = document.createElement("canvas");
+      var measureContext = measureCanvas.getContext("2d");
+      measureContext.font = "700 " + CAPTION_FONT_SIZE + "px Cairo";
+
+      function measureWord(word) {
+        return measureContext.measureText(word.text.toLowerCase()).width * FONT_WIDTH_SAFETY;
+      }
+
+      function measureLineWidth(words) {
+        return words.reduce(function (total, word, index) {
+          return total + measureWord(word) + (index ? WORD_SPACING : 0);
+        }, 0);
+      }
+
+      function fitsInTwoLines(words) {
+        return measureLineWidth(words) <= MAX_LINE_WIDTH * 1.8;
+      }
+
+      function splitLines(words) {
+        if (words.length < 2) {
+          return [{ words: words, startIndex: 0 }];
+        }
+        var bestSplit = Math.ceil(words.length / 2);
+        var bestDiff = Infinity;
+        for (var s = 1; s < words.length; s++) {
+          var w1 = measureLineWidth(words.slice(0, s));
+          var w2 = measureLineWidth(words.slice(s));
+          if (w1 <= MAX_LINE_WIDTH && w2 <= MAX_LINE_WIDTH) {
+            var diff = Math.abs(w1 - w2);
+            if (diff < bestDiff) {
+              bestDiff = diff;
+              bestSplit = s;
+            }
+          }
+        }
+        var result = [];
+        var line1 = words.slice(0, bestSplit);
+        var line2 = words.slice(bestSplit);
+        if (line1.length) result.push({ words: line1, startIndex: 0 });
+        if (line2.length) result.push({ words: line2, startIndex: line1.length });
+        return result;
+      }
+
+      function avoidSingleWordGroups(groups) {
+        var out = [];
+        groups.forEach(function (group) {
+          if (
+            group.words.length === 1 &&
+            out.length > 0 &&
+            out[out.length - 1].words.length < MAX_WORDS_PER_GROUP
+          ) {
+            out[out.length - 1] = makeGroup(out[out.length - 1].words.concat(group.words));
+          } else {
+            out.push(group);
+          }
+        });
+
+        for (var i = 0; i < out.length; i++) {
+          if (out[i].words.length !== 1) continue;
+          if (i + 1 < out.length && out[i + 1].words.length < MAX_WORDS_PER_GROUP) {
+            out[i] = makeGroup(out[i].words.concat(out[i + 1].words));
+            out.splice(i + 1, 1);
+          } else if (i > 0 && out[i - 1].words.length < MAX_WORDS_PER_GROUP) {
+            out[i - 1] = makeGroup(out[i - 1].words.concat(out[i].words));
+            out.splice(i, 1);
+            i--;
+          }
+        }
+
+        return out;
+      }
+
+      function makeGroups(words) {
+        var groups = [];
+        var current = [];
+        words.forEach(function (word, index) {
+          var nextWord = words[index + 1];
+          var testGroup = current.concat([word]);
+          if (testGroup.length > MAX_WORDS_PER_GROUP || !fitsInTwoLines(testGroup)) {
+            if (current.length) groups.push(makeGroup(current));
+            current = [word];
+            return;
+          }
+          current.push(word);
+          var punctuation = /[,.:!?]$/.test(word.text);
+          var pause = nextWord ? nextWord.start - word.end : 0;
+          if (
+            !nextWord ||
+            punctuation ||
+            pause >= PAUSE_THRESHOLD ||
+            current.length >= MAX_WORDS_PER_GROUP
+          ) {
+            groups.push(makeGroup(current));
+            current = [];
+          }
+        });
+        if (current.length) groups.push(makeGroup(current));
+        return avoidSingleWordGroups(groups);
+      }
+
+      function makeGroup(words) {
+        return {
+          words: words.slice(),
+          lines: splitLines(words),
+          start: words[0].start,
+          end: words[words.length - 1].end,
+        };
+      }
+
+      function buildCaptions(groups) {
+        var stage = document.getElementById("caption-stage");
+        groups.forEach(function (group, groupIndex) {
+          var groupText = group.words
+            .map(function (w) {
+              return w.text.toLowerCase();
+            })
+            .join(" ");
+          var computedSize = fitFontSize(
+            groupText,
+            CAPTION_FONT_SIZE,
+            "700",
+            "Cairo",
+            MAX_LINE_WIDTH,
+          );
+          var groupEl = document.createElement("div");
+          var copyEl = document.createElement("div");
+          groupEl.id = "caption-group-" + groupIndex;
+          groupEl.className = "caption-group";
+          copyEl.className = "caption-copy";
+          group.lines.forEach(function (line, lineIndex) {
+            var lineEl = document.createElement("div");
+            lineEl.className = "caption-line";
+            lineEl.id = "caption-group-" + groupIndex + "-line-" + lineIndex;
+            lineEl.style.fontWeight = lineIndex === 0 ? FONT_WEIGHT_BOLD : FONT_WEIGHT_LIGHT;
+            lineEl.style.fontSize = computedSize + "px";
+            line.words.forEach(function (word, wordIndex) {
+              var wordEl = document.createElement("span");
+              wordEl.textContent = word.text.toLowerCase();
+              wordEl.style.display = "inline-block";
+              lineEl.appendChild(wordEl);
+            });
+            copyEl.appendChild(lineEl);
+          });
+          groupEl.appendChild(copyEl);
+          stage.appendChild(groupEl);
+        });
+      }
+
+      var WORDS = normalizeWords(TRANSCRIPT);
+      var GROUPS = makeGroups(WORDS);
+      buildCaptions(GROUPS);
+
+      window.__timelines = window.__timelines || {};
+      var tl = gsap.timeline({ paused: true });
+
+      var visibleStarts = GROUPS.map(function (group, groupIndex) {
+        var prev = GROUPS[groupIndex - 1];
+        var availableGap = prev ? Math.max(0, group.start - prev.end) : ENTRY_DURATION;
+        var entryLead = Math.min(ENTRY_DURATION, availableGap);
+        return Math.max(0, group.start - entryLead);
+      });
+
+      var allGroupEls = GROUPS.map(function (_, i) {
+        return document.getElementById("caption-group-" + i);
+      });
+
+      GROUPS.forEach(function (group, groupIndex) {
+        var groupEl = allGroupEls[groupIndex];
+        var visibleStart = visibleStarts[groupIndex];
+        var visibleEnd = groupIndex < GROUPS.length - 1 ? visibleStarts[groupIndex + 1] : DURATION;
+
+        allGroupEls.forEach(function (otherEl, otherIndex) {
+          if (otherIndex !== groupIndex) tl.set(otherEl, { opacity: 0 }, visibleStart);
+        });
+
+        tl.set(groupEl, { opacity: 0, scale: 0.85 }, visibleStart);
+        tl.to(
+          groupEl,
+          { opacity: 1, scale: 1, duration: ENTRY_DURATION, ease: "power3.out", force3D: true },
+          visibleStart,
+        );
+
+        if (group.lines.length === 2) {
+          var line1El = document.getElementById("caption-group-" + groupIndex + "-line-0");
+          var line2El = document.getElementById("caption-group-" + groupIndex + "-line-1");
+          var line2FirstWord = group.lines[1].words[0];
+          var switchTime = line2FirstWord.start;
+
+          tl.to(
+            line1El,
+            { fontWeight: FONT_WEIGHT_LIGHT, duration: WEIGHT_TRANSITION, ease: "power2.out" },
+            switchTime,
+          );
+          tl.to(
+            line2El,
+            { fontWeight: FONT_WEIGHT_BOLD, duration: WEIGHT_TRANSITION, ease: "power2.out" },
+            switchTime,
+          );
+        }
+
+        tl.set(groupEl, { opacity: 0 }, visibleEnd);
+      });
+
+      window.__timelines["caption-weight-shift"] = tl;
+    </script>
+  </body>
+</html>

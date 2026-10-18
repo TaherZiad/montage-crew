@@ -1,0 +1,196 @@
+<!doctype html>
+<!-- Modified from the HyperFrames registry item caption-clip-wipe (registry/components), (c) HeyGen / HyperFrames contributors, Apache License 2.0 (https://github.com/heygen-com/hyperframes, see NOTICES.md). Changes: Arabic/RTL adaptation (text, direction, fonts, timing). -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Clip Wipe</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js" integrity="sha256-wXS/zlOnKUGNV6ithiXnJHx5OiL++OKFHjz6PenNgoA=" crossorigin="anonymous"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        margin: 0;
+        overflow: hidden;
+        background: transparent;
+      }
+      #clip-wipe {
+        pointer-events: none;
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: transparent;
+      }
+      .wp-overlay {
+        position: absolute;
+        inset: 0;
+        background: transparent;
+        z-index: 1;
+        pointer-events: none;
+      }
+      #wp-container {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        pointer-events: none;
+      }
+      .wp-group {
+        position: absolute;
+        bottom: 600px; direction: rtl;
+        left: 0;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 0 22px;
+        padding: 0 90px;
+        visibility: hidden;
+      }
+      .wp-word {
+        font-family: "Cairo", sans-serif;
+        font-weight: 800;
+        font-size: 88px;
+        
+        color: #ffffff;
+        display: inline-block;
+        letter-spacing: 0;
+        line-height: 1.35; text-shadow: 0 2px 14px rgba(0,0,0,.45);
+        clip-path: inset(0 0 0 100%);
+        will-change: clip-path, color, opacity;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="clip-wipe"
+      data-composition-id="caption-clip-wipe"
+      data-timeline-locked
+      data-start="0"
+      data-duration="6"
+      data-fps="30"
+      data-width="1080"
+      data-height="1920"
+    >
+      <div class="wp-overlay"></div>
+      <div id="wp-container"></div>
+    </div>
+
+    <script>
+      (function () {
+        window.__timelines = window.__timelines || {};
+
+        var _fitCanvas = document.createElement("canvas");
+        var _fitCtx = _fitCanvas.getContext("2d");
+        function fitFontSize(text, baseFontSize, fontWeight, fontFamily, maxWidth) {
+          var size = baseFontSize;
+          var minSize = Math.floor(baseFontSize * 0.45);
+          while (size > minSize) {
+            _fitCtx.font = fontWeight + " " + size + "px " + fontFamily;
+            if (_fitCtx.measureText(text).width <= maxWidth) return size;
+            size -= 2;
+          }
+          return minSize;
+        }
+
+        var WORDS = [
+          { text: "هسه", start: 0.0, end: 0.3 },
+          { text: "الذكاء", start: 0.3, end: 0.7 },
+          { text: "الاصطناعي", start: 0.7, end: 1.2 },
+          { text: "يسوي", start: 1.2, end: 1.5 },
+          { text: "مونتاج", start: 1.5, end: 1.9 },
+          { text: "كامل", start: 1.9, end: 2.3 },
+          { text: "بدقيقة", start: 2.4, end: 2.8 },
+          { text: "وحدة", start: 2.8, end: 3.2 },
+          { text: "بس", start: 3.4, end: 3.6 },
+          { text: "لازم", start: 3.6, end: 3.9 },
+          { text: "تعرف", start: 3.9, end: 4.3 },
+          { text: "شلون", start: 4.3, end: 4.7 },
+          { text: "تستخدمه", start: 4.7, end: 5.2 },
+          { text: "صح", start: 5.2, end: 5.6 }
+        ];
+
+        var KEYWORDS = new Set([2, 4, 6, 13]); // HyperFrames, HTML, professional, code, cinema.
+
+        var RAW_GROUPS = [[0, 2], [3, 5], [6, 7], [8, 10], [11, 13]];
+        var GROUPS = RAW_GROUPS.map(function (pair, gi) {
+          var ws = pair[0],
+            we = pair[1];
+          var nextStart = gi + 1 < RAW_GROUPS.length ? WORDS[RAW_GROUPS[gi + 1][0]].start : 6.0;
+          var gEnd = Math.min(WORDS[we].end + 0.5, nextStart - 0.05);
+          return { wordStart: ws, wordEnd: we, start: WORDS[ws].start, end: gEnd };
+        });
+
+        var container = document.getElementById("wp-container");
+        var tl = gsap.timeline({ paused: true });
+
+        GROUPS.forEach(function (g, gi) {
+          var groupWords = WORDS.slice(g.wordStart, g.wordEnd + 1);
+          var grp = document.createElement("div");
+          grp.className = "wp-group";
+          grp.id = "wp-grp-" + gi;
+
+          var groupText = groupWords
+            .map(function (w) {
+              return w.text.toUpperCase();
+            })
+            .join(" ");
+          var computedSize = fitFontSize(groupText, 100, "800", "Cairo", 900);
+
+          groupWords.forEach(function (w, i) {
+            var wi = g.wordStart + i;
+            var span = document.createElement("span");
+            span.className = "wp-word";
+            span.id = "wp-w-" + wi;
+            span.textContent = w.text.toUpperCase();
+            span.style.fontSize = computedSize + "px";
+            grp.appendChild(span);
+          });
+
+          container.appendChild(grp);
+
+          tl.set(grp, { visibility: "visible" }, g.start);
+
+          groupWords.forEach(function (w, i) {
+            var wi = g.wordStart + i;
+            var wordEl = document.getElementById("wp-w-" + wi);
+            var isKW = KEYWORDS.has(wi);
+
+            tl.to(
+              wordEl,
+              { clipPath: "inset(0 0 0 0%)", duration: 0.3, ease: "power2.out" },
+              w.start,
+            );
+            if (isKW) {
+              tl.to(wordEl, { color: "#FFD700", duration: 0.05 }, w.start + 0.1);
+            }
+            tl.to(wordEl, { color: "rgba(255,255,255,0.4)", duration: 0.2 }, w.end);
+          });
+
+          var wordEls = grp.querySelectorAll(".wp-word");
+          tl.to(
+            wordEls,
+            {
+              clipPath: "inset(0 100% 0 0%)",
+              duration: 0.25,
+              stagger: 0.04,
+              ease: "power2.in",
+            },
+            g.end - 0.2,
+          );
+          tl.set(grp, { visibility: "hidden", opacity: 0 }, g.end);
+        });
+
+        tl.seek(0);
+        window.__timelines["caption-clip-wipe"] = tl;
+      })();
+    </script>
+  </body>
+</html>

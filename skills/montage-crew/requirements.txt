@@ -1,0 +1,10 @@
+# montage-crew Python dependencies (installed into ~/.montage-crew/venv by the installer). CPU builds by default.
+# NVIDIA GPU (optional, Windows/Linux): replace onnxruntime with onnxruntime-gpu==1.22.0 (install.ps1 -Gpu does this);
+# faster-whisper uses the GPU through CTranslate2 when CUDA 12 + cuDNN 9 are present, else falls back to CPU.
+faster-whisper==1.2.1
+onnxruntime==1.22.0
+numpy>=1.24,<3
+scipy>=1.10,<2
+opencv-python-headless>=4.8,<6
+Pillow>=10,<13
+requests>=2.31,<3

@@ -1,0 +1,88 @@
+/* rtl-kit.css — fonts, looks, text styles, containers. Copy assets/fonts/ next to this file as ./fonts/ */
+@font-face { font-family: "Aref Ruqaa"; src: url("fonts/ArefRuqaa-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: "Aref Ruqaa"; src: url("fonts/ArefRuqaa-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Alexandria"; src: url("fonts/Alexandria-VF.ttf") format("truetype"); font-weight: 100 900; }
+@font-face { font-family: "Cairo"; src: url("fonts/Cairo-VF.ttf") format("truetype"); font-weight: 200 1000; }
+@font-face { font-family: "Plex Arabic"; src: url("fonts/IBMPlexSansArabic-ExtraLight.ttf"); font-weight: 200; }
+@font-face { font-family: "Plex Arabic"; src: url("fonts/IBMPlexSansArabic-Light.ttf"); font-weight: 300; }
+@font-face { font-family: "Plex Arabic"; src: url("fonts/IBMPlexSansArabic-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: "Plex Arabic"; src: url("fonts/IBMPlexSansArabic-SemiBold.ttf"); font-weight: 600; }
+@font-face { font-family: "Plex Arabic"; src: url("fonts/IBMPlexSansArabic-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Tajawal"; src: url("fonts/Tajawal-Light.ttf"); font-weight: 300; }
+@font-face { font-family: "Tajawal"; src: url("fonts/Tajawal-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: "Tajawal"; src: url("fonts/Tajawal-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Tajawal"; src: url("fonts/Tajawal-ExtraBold.ttf"); font-weight: 800; }
+@font-face { font-family: "Tajawal"; src: url("fonts/Tajawal-Black.ttf"); font-weight: 900; }
+@font-face { font-family: "Anton"; src: url("fonts/Anton-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: "Montserrat"; src: url("fonts/Montserrat-VF.ttf"); font-weight: 100 900; }
+
+/* ---------- Looks (set one class on #root) ---------- */
+.look-espresso { --bg:#1D1011; --ink:#F9E2CA; --ink2:#EFE3D8; --accent:#E09A5C; --glass:rgba(40,22,20,.35); --rim:rgba(255,235,220,.35); --glow:rgba(231,184,148,.45); --ar:"Alexandria"; }
+.look-navy     { --bg:#00213C; --ink:#D0B6A1; --ink2:#F2F2F2; --accent:#9DB8D6; --glass:rgba(255,255,255,.06); --rim:rgba(255,255,255,.5); --glow:rgba(208,182,161,.4); --ar:"Plex Arabic"; }
+.look-neon     { --bg:#0B131F; --ink:#FFFFFF; --ink2:#FFFFFF; --accent:#3A86FF; --glass:rgba(20,24,36,.55); --rim:rgba(190,200,220,.55); --glow:rgba(25,55,205,.8); --ar:"Alexandria"; }
+.look-gold     { --bg:#110F10; --ink:#F7D100; --ink2:#FFFFFF; --accent:#FF7A00; --glass:rgba(255,255,255,.14); --rim:rgba(255,255,255,.5); --glow:rgba(255,170,0,.6); --ar:"Cairo"; }
+.look-pink     { --bg:#481B30; --ink:#FFFFFF; --ink2:#FFFFFF; --accent:#FF2FA8; --glass:rgba(135,48,100,.72); --rim:rgba(255,255,255,.25); --glow:rgba(255,47,168,.6); --ar:"Alexandria"; }
+.look-teal     { --bg:#0D2C3D; --ink:#FFFFFF; --ink2:#FFFFFF; --accent:#3FD7FF; --glass:rgba(40,190,235,.3); --rim:#6FE6FF; --glow:rgba(63,215,255,.5); --ar:"Alexandria"; }
+
+/* ---------- Base ---------- */
+.ar { direction: rtl; font-family: var(--ar, "Alexandria"), "Tajawal", sans-serif; }
+.lat { direction: ltr; font-family: "Montserrat", sans-serif; }
+.abs { position: absolute; }
+.center-x { left: 0; right: 0; text-align: center; }
+.rk-line { display: block; width: max-content; margin: 0 auto; white-space: nowrap; line-height: 1.15; }
+
+/* ---------- Text styles (sizes assume 1920 px height) ---------- */
+.h-hero  { font-weight: 900; font-size: 250px; color: var(--ink); }                 /* 13 %H */
+.h-title { font-weight: 800; font-size: 180px; color: var(--ink); }                 /* 9 %H  */
+.h-kw    { font-weight: 800; font-size: 115px; color: var(--ink); }                 /* 6 %H  */
+.sub     { font-weight: 300; font-size: 54px; color: var(--ink2); }                 /* 2.8 %H */
+.lead    { font-weight: 700; font-size: 54px; color: #fff; text-shadow: 0 0 8px rgba(255,255,255,.35); }
+.caption { font-weight: 700; font-size: 54px; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.55); }
+
+.glow      { text-shadow: 0 0 12px color-mix(in srgb, var(--ink) 80%, transparent), 0 0 60px var(--glow); }
+.glow-soft { text-shadow: 0 0 30px var(--glow); }
+.neon-blue { background: linear-gradient(180deg,#6FA8FF,#3A86FF 55%,#2F6BFF); -webkit-background-clip: text; background-clip: text; color: transparent;
+             filter: drop-shadow(0 0 10px #2F6BFF) drop-shadow(0 0 28px rgba(25,55,205,.8)); }
+.neon-yellow { color: #F7D100; text-shadow: 0 0 4px #FFE45C, 0 0 18px #FFC400, 0 0 40px rgba(255,170,0,.6); }
+.neon-tube { color: #FFFDF0; text-shadow: 0 0 6px #fff, 0 0 22px #F7D100, 0 0 48px #FF9F00; }
+.copper { background: linear-gradient(110deg,#CDB6A0,#E6A877 35%,#A8704E 55%,#E2B08A 75%,#CDB8A8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ghost  { color: transparent; -webkit-text-stroke: 2px rgba(255,255,255,.9); opacity: .1; }
+.outline-text { color: transparent; -webkit-text-stroke: 2px var(--ink); }
+
+/* ---------- Containers ---------- */
+.glass-pill { padding: 18px 60px; border-radius: 999px; background: var(--glass); border: 1.5px solid var(--rim);
+              backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.arch { border-radius: 999px 999px 0 0; background: var(--glass); border: 1.5px solid var(--rim);
+        backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); }
+.arch--bottom { border-radius: 0 0 999px 999px; }
+.liquid-tag { padding: 14px 70px 14px 50px; border-radius: 999px; background: #02172B; color: #fff;
+              box-shadow: inset 0 0 0 3px rgba(255,255,255,.85), inset 0 2px 6px rgba(255,255,255,.6), 0 6px 18px rgba(0,0,0,.35); overflow: hidden; }
+.dark-pill { padding: 40px 60px; border-radius: 60px; background: #061312F2; box-shadow: -3px 3px 0 var(--accent), 0 12px 30px #0008; }
+.glass-card { padding: 34px 44px; border-radius: 24px; background: var(--glass); border: 1px solid rgba(255,255,255,.25);
+              backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+              background-image: linear-gradient(135deg, rgba(255,255,255,.3), transparent 40%); box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+.edge-card { padding: 34px 44px; border-radius: 22px; background: #fff; color: #111; box-shadow: 0 18px 0 var(--accent); }
+
+/* ---------- Depth / FX ---------- */
+.fg-blob { border-radius: 38%; background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--accent) 70%, white), var(--accent)); filter: blur(40px); opacity: 0; }
+.grad-bottom { left: 0; right: 0; bottom: 0; height: 40%; background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--bg) 95%, transparent)); pointer-events: none; }
+.vignette { inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(0,0,0,.45)); pointer-events: none; }
+.flash-white { inset: 0; background: #fff; opacity: 0; }
+
+/* gradient-clipped text keeps its fill after letter/word splitting */
+.copper .rk-l, .copper .rk-w, .neon-blue .rk-l, .neon-blue .rk-w { background: inherit; -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ---- SOFT TEXT SYSTEM (craft/09): no boxes, pills or cards behind text ---- */
+.soft-cap { position: absolute; left: 190px; right: 190px; top: 1180px; text-align: center; direction: rtl;
+  font-family: "Plex Arabic", "Tajawal", sans-serif; font-weight: 500; font-size: 68px; line-height: 1.35;
+  color: #F2F0E8; white-space: nowrap; text-shadow: 0 2px 18px rgba(0,0,0,.35); }
+.soft-cap .em { font-weight: 700; }                 /* one emphasised word, no size jump */
+.soft-cap .acc { color: var(--accent); }            /* whole-phrase accent, only if >= 4.5:1 */
+.soft-light { font-weight: 200; color: rgba(242,240,232,.82); }   /* premium-soft light lead word */
+.soft-bold  { font-weight: 800; color: #F2F0E8; }                 /* paired bold keyword */
+.soft-kw { direction: rtl; font-family: "Alexandria", sans-serif; font-weight: 800; font-size: 150px; line-height: 1.2;
+  color: #F2F0E8; text-shadow: 0 4px 30px rgba(0,0,0,.28); white-space: nowrap; }
+.scrim { position: absolute; pointer-events: none; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0,0,0,.28), rgba(0,0,0,0)); filter: blur(30px); }  /* size it 1.4x the text block */
+.bottom-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 35%; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,.45)); }

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <title>Arabic Motion Reel</title>
+  <script src="gsap.min.js"></script>
+  <link rel="stylesheet" href="rtl-kit.css" />
+  <script src="rtl-kit.js"></script>
+  <style>
+    body { margin: 0; background: #000; }
+    #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+    .layer { position: absolute; inset: 0; }
+    .cam { position: absolute; inset: 0; transform-origin: 50% 42%; }
+    .cam video { width: 100%; height: 100%; object-fit: cover; filter: contrast(1.08) saturate(.92) brightness(.96); }
+    .clip { position: absolute; inset: 0; }
+  </style>
+</head>
+<body>
+<!-- Replace: look class, DURATION, cut.mp4, beats. Times come from words_cut.json. -->
+<div id="root" class="look-espresso" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="12">
+
+  <!-- 1. footage (camera wrapper is NOT timed; video is) -->
+  <div id="cam" class="cam">
+    <video id="aroll" src="cut.mp4" data-start="0" data-track-index="0" muted playsinline></video>
+  </div>
+
+  <!-- 2. behind-speaker layer (numerals, ghost text) -->
+  <section id="behind1" class="clip" data-start="0" data-duration="3" data-track-index="1">
+    <div id="ghost" class="abs center-x ar h-hero ghost" style="top:520px;font-size:420px">ليش</div>
+  </section>
+
+  <!-- 3. speaker matte (optional): scripts/matte.py cut.mp4 speaker.mov (stable on video) -->
+  <!-- add here: div#cam2.cam containing video#matte (matte.webm, muted, data-start 0), and put "#cam2" in the cam array -->
+
+  <div class="layer vignette abs"></div>
+
+  <!-- 4. beats (graphics die with their clip = "die on the cut") -->
+  <section id="b1" class="clip" data-start="0" data-duration="3" data-track-index="3">
+    <div class="abs center-x ar" style="top:140px">
+      <div id="b1-title" class="rk-line h-title glow">المحتوى</div>
+      <div id="b1-sub" class="rk-line sub" style="margin-top:6px">مو مجرد تصوير</div>
+    </div>
+  </section>
+
+  <section id="b2" class="clip" data-start="3" data-duration="3" data-track-index="3">
+    <div id="b2-arch" class="abs arch" style="left:90px;right:90px;top:1080px;bottom:-40px"></div>
+    <div class="abs center-x ar" style="top:1200px">
+      <div id="b2-kw" class="rk-line h-kw" style="color:#fff" data-base="المشكلة">المشكلة</div>
+      <div id="b2-sub" class="rk-line sub" style="margin-top:14px">إن المحتوى ما وراه استراتيجية</div>
+    </div>
+  </section>
+
+  <section id="b3" class="clip" data-start="6" data-duration="3" data-track-index="3">
+    <div class="abs center-x ar" style="top:1020px">
+      <div id="b3-hero" class="rk-line h-hero glow-soft">ليش</div>
+      <div id="b3-pill" class="glass-pill ar sub" style="display:inline-block;margin-top:10px">
+        <span id="b3-pill-t">ستوديو برايم</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="b4" class="clip" data-start="9" data-duration="3" data-track-index="3">
+    <div class="abs center-x" style="top:170px">
+      <div id="b4-brand" class="rk-line lat copper" style="font-weight:800;font-size:170px;letter-spacing:.04em">BRAND</div>
+      <div id="b4-tag" class="rk-line ar sub">محتوى يفكر وتسويق يأثر</div>
+    </div>
+  </section>
+
+  <div id="flash" class="abs flash-white"></div>
+
+  <!-- audio: voice from the cut, bed + sfx from assets/sfx (CC0) or the user's own track -->
+  <audio id="voice" src="cut.mp4" data-start="0" data-track-index="10" data-volume="1"></audio>
+  <!-- add: music bed as audio#bed (data-volume ~0.12, ducked) and one audio#sfx-N per whoosh/pop, data-start = visual hit - 2f -->
+</div>
+
+<script>
+  const tl = gsap.timeline({ paused: true });
+  const F = RK.F, cam = ["#cam"]; // add "#cam2" when the matte layer is on
+
+  // shot plan: alternate WIDE (1) / MED (1.6) on cuts, slow push inside shots
+  RK.drift(tl, cam, 0, 3, { from: 1, to: 1.05 });
+  RK.reframe(tl, cam, 3, 1.6);            RK.drift(tl, cam, 3, 3, { from: 1.6, to: 1.66 });
+  RK.reframe(tl, cam, 6, 1);              RK.drift(tl, cam, 6, 3, { from: 1, to: 1.05 });
+  RK.punch(tl, cam, 9, { to: 1.0, dur: 0 });
+
+  // B1 glow title + light subline (subline +5 f)
+  tl.fromTo("#ghost", { opacity: 0 }, { opacity: 0.1, duration: 12 * F }, 0);
+  RK.wipeRTL(tl, "#b1-title", 2 * F, { dur: 10 * F, scale: 0.8 });
+  RK.wordsIn(tl, "#b1-sub", 7 * F, { stagger: 3 * F, blur: 6 });
+
+  // B2 frosted arch + kashida keyword
+  RK.slideIn(tl, "#b2-arch", 3, { y: 45, dur: 8 * F, ease: "power3.out" });
+  RK.kashidaIn(tl, "#b2-kw", 3 + 6 * F, { n: 5 });
+  RK.wordsIn(tl, "#b2-sub", 3 + 16 * F, { stagger: 3 * F });
+
+  // B3 hero word + glass pill
+  RK.blurPop(tl, "#b3-hero", 6 + 2 * F);
+  tl.to("#b3-hero", { scale: 1.08, duration: 2.4, ease: "sine.out" }, 6 + 12 * F);
+  RK.popIn(tl, "#b3-pill", 6 + 18 * F, { from: 0.92, ease: "power3.out" });
+  RK.wipeRTL(tl, "#b3-pill-t", 6 + 22 * F, { dur: 12 * F, y: 0 });
+
+  // B4 brand lockup (Latin L→R pop, tagline RTL) + flash into it
+  RK.flash(tl, "#flash", 9 - 2 * F, { up: 2 * F, down: 4 * F });
+  RK.baselinePop(tl, "#b4-brand", 9 + 2 * F);
+  RK.wordsIn(tl, "#b4-tag", 9 + 16 * F, { stagger: 3 * F });
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

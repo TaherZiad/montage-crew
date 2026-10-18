@@ -1,0 +1,131 @@
+/* caption-styles.css — looks for the 28 caption styles (motion lives in caption-styles.js).
+ * Copy assets/fonts/ next to this file as ./fonts/ (same convention as rtl-kit.css).
+ * HyperFrames `check` wants @font-face inline in the composition style block: paste this file's @font-face block there
+ * (or inline the whole file, as gallery/gen.py does). All fonts: SIL OFL 1.1 (Google Fonts).
+ * Colours come from the scheme as CSS vars on .cs-layer: --ink --acc --acc2 --stk --on --dim --acc-a --acc2-a.
+ */
+@font-face { font-family: "Plex Arabic"; src: url("fonts/IBMPlexSansArabic-Light.ttf"); font-weight: 300; }
+@font-face { font-family: "Plex Arabic"; src: url("fonts/IBMPlexSansArabic-Regular.ttf"); font-weight: 400 500; }
+@font-face { font-family: "Plex Arabic"; src: url("fonts/IBMPlexSansArabic-SemiBold.ttf"); font-weight: 600; }
+@font-face { font-family: "Plex Arabic"; src: url("fonts/IBMPlexSansArabic-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Alexandria"; src: url("fonts/Alexandria-VF.ttf") format("truetype"); font-weight: 100 900; }
+@font-face { font-family: "Cairo"; src: url("fonts/Cairo-VF.ttf") format("truetype"); font-weight: 200 1000; }
+@font-face { font-family: "Readex Pro"; src: url("fonts/ReadexPro-VF.ttf") format("truetype"); font-weight: 160 700; }
+@font-face { font-family: "Rubik"; src: url("fonts/Rubik-VF.ttf") format("truetype"); font-weight: 300 900; }
+@font-face { font-family: "Lalezar"; src: url("fonts/Lalezar-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: "Baloo Bhaijaan 2"; src: url("fonts/BalooBhaijaan2-VF.ttf") format("truetype"); font-weight: 400 800; }
+@font-face { font-family: "Changa"; src: url("fonts/Changa-VF.ttf") format("truetype"); font-weight: 200 800; }
+@font-face { font-family: "El Messiri"; src: url("fonts/ElMessiri-VF.ttf") format("truetype"); font-weight: 400 700; }
+@font-face { font-family: "Noto Kufi Arabic"; src: url("fonts/NotoKufiArabic-VF.ttf") format("truetype"); font-weight: 100 900; }
+@font-face { font-family: "Amiri"; src: url("fonts/Amiri-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Marhey"; src: url("fonts/Marhey-VF.ttf") format("truetype"); font-weight: 300 700; }
+@font-face { font-family: "Lemonada"; src: url("fonts/Lemonada-VF.ttf") format("truetype"); font-weight: 300 700; }
+@font-face { font-family: "Almarai"; src: url("fonts/Almarai-ExtraBold.ttf"); font-weight: 800; }
+@font-face { font-family: "Aref Ruqaa"; src: url("fonts/ArefRuqaa-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Segoe UI Emoji"; src: local("Segoe UI Emoji"); }  /* Windows colour emoji (CAP-17) */
+@font-face { font-family: "Montserrat"; src: url("fonts/Montserrat-VF.ttf") format("truetype"); font-weight: 100 900; }
+
+/* ---------- base (soft caption spec, craft/09 §2) ---------- */
+.cs-layer { position: absolute; inset: 0; pointer-events: none; }
+.cs-cap { position: absolute; left: 190px; right: 190px; top: var(--cs-top, 1170px); text-align: center; direction: rtl; opacity: 0;
+  font-family: "Plex Arabic", sans-serif; font-weight: 500; font-size: 68px; line-height: 1.32; color: var(--ink);
+  text-shadow: 0 2px 18px rgba(0,0,0,.45); }
+.cs-w { display: inline-block; position: relative; isolation: isolate; }
+.cs-w.lat { direction: ltr; unicode-bidi: isolate; font-family: "Montserrat", sans-serif; }
+.cs-key { color: var(--acc); }
+.cs-w > i, .cs-cap > i { position: absolute; pointer-events: none; font-style: normal; }
+.cs-emo { display: inline-block; font-family: "Segoe UI Emoji", sans-serif; text-shadow: 0 4px 14px rgba(0,0,0,.4); }
+
+/* CAP-02 Soft Blur-In, CAP-01 Soft Phrase: base */
+/* CAP-03 Karaoke Fill */
+.cs-cap-03 .cs-cap { font-weight: 600; font-size: 70px; }
+.cs-cap-03 .cs-w, .cs-cap-03 .cs-w.cs-key { color: var(--dim); }
+/* CAP-04 Hormozi Punch */
+.cs-cap-04 .cs-cap { font-family: "Cairo", sans-serif; font-weight: 900; font-size: 78px; line-height: 1.3;
+  -webkit-text-stroke: 11px var(--stk); paint-order: stroke fill; text-shadow: 0 5px 16px rgba(0,0,0,.55); }
+.cs-cap-04 .cs-key { font-size: 1.12em; }
+/* CAP-05 Beast Bounce */
+.cs-cap-05 .cs-cap { font-family: "Lalezar", sans-serif; font-weight: 400; font-size: 102px; line-height: 1.22;
+  -webkit-text-stroke: 12px var(--stk); paint-order: stroke fill; text-shadow: 0 9px 0 var(--stk); }
+/* CAP-06 Clean Educator */
+.cs-cap-06 .cs-cap { font-family: "Readex Pro", sans-serif; font-weight: 600; font-size: 64px; text-shadow: 0 3px 14px rgba(0,0,0,.42); }
+/* CAP-07 Highlight Pill (⚠ box — off the soft-text default; only when the brief picks it) */
+.cs-cap-07 .cs-cap { font-family: "Rubik", sans-serif; font-weight: 700; font-size: 70px; text-shadow: 0 2px 10px rgba(0,0,0,.35); }
+.cs-cap-07 .cs-w { z-index: 0; }
+.cs-cap-07 .cs-key { color: var(--ink); }
+.cs-pill { inset: .06em -.2em .02em -.2em; z-index: -1; background: var(--acc); border-radius: .26em; opacity: 0;
+  box-shadow: 0 6px 18px rgba(0,0,0,.3); }
+/* CAP-08 Underline Sweep */
+.cs-cap-08 .cs-cap { font-weight: 600; }
+.cs-underline { left: -.04em; right: -.04em; bottom: .02em; height: 8px; border-radius: 4px; background: var(--acc);
+  transform-origin: 100% 50%; box-shadow: 0 0 14px var(--acc-a); }
+/* CAP-09 Neon Glow */
+.cs-cap-09 .cs-cap { font-family: "Alexandria", sans-serif; font-weight: 700; font-size: 70px;
+  text-shadow: 0 0 10px var(--acc-a), 0 2px 14px rgba(0,0,0,.5); }
+.cs-cap-09 .cs-key { color: var(--acc2); text-shadow: 0 0 14px var(--acc), 0 0 42px var(--acc-a); }
+/* CAP-10 Outline to Fill */
+.cs-cap-10 .cs-cap { font-family: "Alexandria", sans-serif; font-weight: 900; font-size: 74px; line-height: 1.3; color: transparent;
+  -webkit-text-stroke: 2.5px var(--ink); text-shadow: none; filter: drop-shadow(0 3px 10px rgba(0,0,0,.55)); }
+.cs-cap-10 .cs-w, .cs-cap-10 .cs-key { color: rgba(0,0,0,0); }
+.cs-cap-10 .cs-key { -webkit-text-stroke-color: var(--acc); }
+/* CAP-11 Gradient Sweep */
+.cs-cap-11 .cs-cap { font-family: "Alexandria", sans-serif; font-weight: 800; font-size: 78px; text-shadow: none;
+  filter: drop-shadow(0 3px 12px rgba(0,0,0,.55)); }
+.cs-cap-11 .cs-w { padding: .04em .02em; color: transparent; -webkit-background-clip: text; background-clip: text;
+  background-image: linear-gradient(90deg, var(--ink) 0 50%, var(--acc) 50%, var(--acc2) 100%); background-size: 200% 100%; background-position: 0% 0%; }
+/* CAP-12 3D Extrude */
+.cs-cap-12 .cs-cap { font-family: "Lalezar", sans-serif; font-weight: 400; font-size: 100px; line-height: 1.25;
+  text-shadow: 1px 1px 0 var(--acc), 2px 2px 0 var(--acc), 3px 3px 0 var(--acc), 4px 4px 0 var(--acc), 5px 5px 0 var(--acc),
+    6px 6px 0 var(--acc), 7px 7px 0 var(--acc), 8px 8px 0 var(--stk), 10px 14px 22px rgba(0,0,0,.55); }
+.cs-cap-12 .cs-key { color: var(--acc2); }
+/* CAP-13 Typewriter */
+.cs-cap-13 .cs-cap { font-family: "Noto Kufi Arabic", sans-serif; font-weight: 500; font-size: 60px; line-height: 1.55; text-align: right; word-spacing: .1em; }
+.cs-cap-13 .cs-w { display: none; }
+.cs-caret { position: static !important; display: inline-block; width: 6px; height: .95em; margin-right: 8px; vertical-align: -.14em;
+  background: var(--acc); box-shadow: 0 0 12px var(--acc-a); }
+/* CAP-14 Word Blur-Rise: base */
+.cs-cap-14 .cs-cap { font-size: 70px; }
+/* CAP-15 Stacked Emphasis */
+.cs-cap-15 .cs-cap { top: var(--cs-top, 1100px); line-height: 1.12; }
+.cs-cap-15 .cs-l1 { font-weight: 300; font-size: 56px; color: var(--ink); opacity: .88; }
+.cs-cap-15 .cs-l2 { font-family: "Alexandria", sans-serif; font-weight: 900; font-size: 132px; line-height: 1.15;
+  text-shadow: 0 4px 30px rgba(0,0,0,.35), 0 0 46px var(--acc-a); }
+/* CAP-16 Two-Tone Lead */
+.cs-cap-16 .cs-cap { font-weight: 300; font-size: 62px; }
+.cs-cap-16 .cs-w { opacity: .86; }
+.cs-cap-16 .cs-key { opacity: 1; font-family: "Alexandria", sans-serif; font-weight: 800; font-size: 1.4em; vertical-align: -.06em; }
+/* CAP-17 Emoji Inline */
+.cs-cap-17 .cs-cap { font-family: "Almarai", sans-serif; font-weight: 800; font-size: 70px; }
+/* CAP-18 Cinematic Lower */
+.cs-cap-18 .cs-cap { font-family: "El Messiri", serif; font-weight: 600; font-size: 56px; top: var(--cs-top, 1300px); text-shadow: 0 2px 16px rgba(0,0,0,.6); }
+.cs-line { top: -18px; left: 50%; width: 280px; margin-left: -140px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--acc), transparent); }
+/* CAP-19 Ruqaa Script */
+.cs-cap-19 .cs-cap { font-family: "Aref Ruqaa", serif; font-weight: 700; font-size: 84px; line-height: 1.4; text-shadow: 0 3px 18px rgba(0,0,0,.55); }
+/* CAP-20 Editorial Serif */
+.cs-cap-20 .cs-cap { font-family: "Amiri", serif; font-weight: 700; font-size: 72px; line-height: 1.45; text-shadow: 0 2px 16px rgba(0,0,0,.55); }
+/* CAP-21 Kufi Statement */
+.cs-cap-21 .cs-cap { font-family: "Noto Kufi Arabic", sans-serif; font-weight: 800; font-size: 76px; line-height: 1.5; text-shadow: 0 4px 18px rgba(0,0,0,.55); }
+/* CAP-22 Bubble Pop */
+.cs-cap-22 .cs-cap { font-family: "Baloo Bhaijaan 2", sans-serif; font-weight: 800; font-size: 86px; line-height: 1.3;
+  -webkit-text-stroke: 9px var(--stk); paint-order: stroke fill; text-shadow: 0 7px 0 var(--acc2); }
+/* CAP-23 Glitch RGB */
+.cs-cap-23 .cs-cap { font-family: "Changa", sans-serif; font-weight: 700; font-size: 76px; }
+/* CAP-24 Spotlight Focus */
+.cs-cap-24 .cs-cap { font-family: "Readex Pro", sans-serif; font-weight: 600; font-size: 70px; }
+.cs-cap-24 .cs-w { opacity: .4; filter: blur(3px); }
+/* CAP-25 One Word */
+.cs-cap-25 .cs-cap { font-family: "Alexandria", sans-serif; font-weight: 800; font-size: 112px; height: 160px; top: var(--cs-top, 1140px);
+  text-shadow: 0 4px 26px rgba(0,0,0,.5); }
+.cs-cap-25 .cs-w { position: absolute; left: 0; right: 0; top: 0; opacity: 0; }
+/* CAP-26 Kashida Stretch */
+.cs-cap-26 .cs-cap { font-weight: 600; font-size: 70px; }
+/* CAP-27 Marker Highlight */
+.cs-cap-27 .cs-cap { font-family: "Marhey", sans-serif; font-weight: 600; font-size: 72px; line-height: 1.45; }
+.cs-cap-27 .cs-w { z-index: 0; }
+.cs-cap-27 .cs-key { color: var(--ink); }
+.cs-marker { left: -.14em; right: -.14em; top: .62em; bottom: .16em; z-index: -1; border-radius: .1em; background: var(--acc-m);
+  transform-origin: 100% 50%; }
+/* CAP-28 Retro Offset */
+.cs-cap-28 .cs-cap { font-family: "Lemonada", sans-serif; font-weight: 700; font-size: 62px; line-height: 1.5; text-shadow: 5px 5px 0 var(--acc); }
+.cs-cap-28 .cs-key { color: var(--acc2); }
