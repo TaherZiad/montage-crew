@@ -1,8 +1,8 @@
 """Final render WITHOUT any editor: layers -> one MP4 (ffmpeg, bt709 in and out), plus an FCP7 XML timeline of the
 same layers that DaVinci Resolve and Premiere Pro both import.
 
-  python compose.py <work> --format 9x16|16x9 --out <output_dir>/<name> [--xml] [--layers FILE] [--sfx FILE]
-                    [--dur S] [--fps 30] [--no-master]
+  python compose.py <work> --format 9x16|16x9 --out <output_dir>/<name> [--xml] [--ae] [--layers-out]
+                    [--layers FILE] [--sfx FILE] [--dur S] [--fps 30] [--no-master]
   python compose.py --selftest            renders a 3 s demo from synthetic inputs and checks picture, sound and XML
 
 Inputs
@@ -22,8 +22,14 @@ Outputs
              (master.py; --no-master keeps the raw mix)
   --xml: <out>/project/timeline.xml (xmeml v4) + <out>/project/media/ (copies of every file it uses)
          Resolve: File > Import > Timeline · Premiere: File > Import. Eased zooms become linear keyframes there.
+  --ae:  <out>/project/ae_import.jsx + <out>/project/media/ — After Effects: File > Scripts > Run Script File. One comp at
+         the format/fps, every layer and sound placed at its start/duration, zooms as linear scale/position keys.
+         The script only imports and builds (no file writing, no network; no AE preference needs changing).
+  --layers-out: <out>/project/layers/NN_<layer>_<name>.<ext> numbered bottom -> top (video, then audio) + order.txt
+         (file, start s, end s, track) + layers.csv — for CapCut / Final Cut: put each file at its start on its own track.
+  All exports use the same track layout (overlapping items of one layer go to extra tracks).
 """
-import argparse, json, math, os, pathlib, shutil, subprocess, sys, tempfile
+import argparse, json, math, os, pathlib, re, shutil, subprocess, sys, tempfile
 import xml.etree.ElementTree as ET
 from urllib.parse import quote
 
@@ -326,6 +332,56 @@ def copy_media(paths, media_dir):
     return out
 
 
+def plan(items, sfx, D, fps):
+    """The NLE track layout shared by every export: (video lanes bottom->top, audio lanes), each lane a list of
+    {item, path, info, layer, rec_in, rec_out, n, src_in, db} in frames. Items of one layer group that overlap in
+    time go to extra lanes (an NLE track can't stack)."""
+    N = int(round(D * fps))
+    entry = lambda it, path, info, layer, a, n, src_in, db=0.0: {"item": it, "path": path, "info": info, "layer": layer,
+                                                                 "rec_in": a, "rec_out": min(a + n, N), "n": n,
+                                                                 "src_in": src_in, "db": db}
+
+    def pack(seq):
+        lanes = []
+        for e in seq:
+            lane = next((l for l in lanes if l[0] <= e["rec_in"]), None)
+            if lane is None:
+                lane = [0, []]; lanes.append(lane)
+            lane[0] = e["rec_in"] + e["n"]
+            lane[1].append(e)
+        return [l[1] for l in lanes]
+
+    vis = sorted([i for i in items if i["layer"] not in AUDIO and i["info"]["video"]],
+                 key=lambda i: (ORDER.get(i["layer"], 7), i["seq"] if i["layer"] in ORDER else 0, i["seq"]))
+    groups = {}
+    for it in vis:
+        groups.setdefault(ORDER.get(it["layer"], 7 + it["seq"]), []).append(it)
+    vtracks = []
+    for key in sorted(groups):
+        seq = []
+        for it in sorted(groups[key], key=lambda i: (float(i["at"]), i["seq"])):
+            n = int(round(item_len(it, D) * fps))
+            if n > 0:
+                seq.append(entry(it, it["path"], it["info"], it["layer"], int(round(float(it["at"]) * fps)), n,
+                                 int(round(float(it["in"]) * fps))))
+        vtracks += pack(seq)
+    atracks = []
+    voice = [i for i in items if i["layer"] == "voice"] or [i for i in items if i["layer"] == "aroll" and i["info"]["audio"]]
+    for group, default_db in ((voice, 0.0), ([i for i in items if i["layer"] == "music"], -18.0)):
+        lane = [entry(it, it["path"], it["info"], it["layer"], int(round(float(it["at"]) * fps)),
+                      int(round(item_len(it, D) * fps)), int(round(float(it["in"]) * fps)),
+                      float(it.get("gain_db", default_db if it["layer"] != "aroll" else 0)))
+                for it in group if it["info"]["audio"]]
+        if group:
+            atracks.append(lane)
+    seq = []
+    for c in sorted(sfx, key=lambda c: c["start"]):
+        info = probe(c["path"])
+        seq.append(entry(c, c["path"], info, "sfx", int(round(c["start"] * fps)), max(1, int(math.ceil(info["dur"] * fps))),
+                         0, float(c.get("gain_db", 0))))
+    return vtracks, atracks + pack(seq)
+
+
 def export_xml(items, sfx, D, W, H, fps, xml_path, name="montage-crew"):
     xml_path = pathlib.Path(xml_path)
     media = copy_media([i["path"] for i in items] + [c["path"] for c in sfx], xml_path.parent / "media")
@@ -414,51 +470,17 @@ def export_xml(items, sfx, D, W, H, fps, xml_path, name="montage-crew"):
         _sub(p, "valuemin", 0); _sub(p, "valuemax", 3.98109); _sub(p, "value", round(10 ** (db / 20), 5))
         return eff
 
-    vis = sorted([i for i in items if i["layer"] not in AUDIO and i["info"]["video"]],
-                 key=lambda i: (ORDER.get(i["layer"], 7), i["seq"] if i["layer"] in ORDER else 0, i["seq"]))
-    groups = {}
-    for it in vis:
-        groups.setdefault(ORDER.get(it["layer"], 7 + it["seq"]), []).append(it)
-    for key in sorted(groups):  # items of one layer group that overlap in time go to extra tracks (an NLE track can't stack)
-        lanes = []
-        for it in sorted(groups[key], key=lambda i: (float(i["at"]), i["seq"])):
-            rec_in = int(round(float(it["at"]) * fps))
-            n = int(round(item_len(it, D) * fps))
-            if n <= 0:
-                continue
-            lane = next((l for l in lanes if l[0] <= rec_in), None)
-            if lane is None:
-                lane = [0, _sub(vid, "track")]; lanes.append(lane)
-            lane[0] = rec_in + n
-            clip(lane[1], it["path"], it["info"], rec_in, min(rec_in + n, N), int(round(float(it["in"]) * fps)), "video",
-                 [motion(it, rec_in, int(round(float(it["in"]) * fps)), n)])
-        for _, tr in lanes:
-            _sub(tr, "enabled", "TRUE"); _sub(tr, "locked", "FALSE")
-
-    voice = [i for i in items if i["layer"] == "voice"] or [i for i in items if i["layer"] == "aroll" and i["info"]["audio"]]
-    for group, default_db in ((voice, 0.0), ([i for i in items if i["layer"] == "music"], -18.0)):
-        if not group:
-            continue
-        tr = _sub(aud, "track")
-        for it in group:
-            if not it["info"]["audio"]:
-                continue
-            rec_in = int(round(float(it["at"]) * fps))
-            n = int(round(item_len(it, D) * fps))
-            db = float(it.get("gain_db", default_db if it["layer"] != "aroll" else 0))
-            clip(tr, it["path"], it["info"], rec_in, min(rec_in + n, N), int(round(float(it["in"]) * fps)), "audio",
-                 [level(db)])
+    vtracks, atracks = plan(items, sfx, D, fps)
+    for lane in vtracks:
+        tr = _sub(vid, "track")
+        for e in lane:
+            clip(tr, e["path"], e["info"], e["rec_in"], e["rec_out"], e["src_in"], "video",
+                 [motion(e["item"], e["rec_in"], e["src_in"], e["n"])])
         _sub(tr, "enabled", "TRUE"); _sub(tr, "locked", "FALSE")
-    lanes = []  # non-overlapping SFX lanes
-    for c in sorted(sfx, key=lambda c: c["start"]):
-        info = probe(c["path"])
-        a, b = int(round(c["start"] * fps)), int(round(c["start"] * fps)) + max(1, int(math.ceil(info["dur"] * fps)))
-        lane = next((l for l in lanes if l[0] <= a), None)
-        if lane is None:
-            lane = [0, _sub(aud, "track")]; lanes.append(lane)
-        lane[0] = b
-        clip(lane[1], c["path"], info, a, min(b, N), 0, "audio", [level(float(c.get("gain_db", 0)))])
-    for _, tr in lanes:
+    for lane in atracks:
+        tr = _sub(aud, "track")
+        for e in lane:
+            clip(tr, e["path"], e["info"], e["rec_in"], e["rec_out"], e["src_in"], "audio", [level(e["db"])])
         _sub(tr, "enabled", "TRUE"); _sub(tr, "locked", "FALSE")
 
     ET.indent(root)
@@ -501,6 +523,158 @@ def check_xml(xml_path):
     if seq.find("media/video/track") is None:
         errs.append("no video track")
     return errs
+
+
+# ── After Effects (ExtendScript) + plain layer export (CapCut / Final Cut) ──
+AE_JSX = r'''// montage-crew -> After Effects: File > Scripts > Run Script File..., pick this file.
+// It imports the files in media/ next to it and builds one comp. It never writes files or uses the network.
+(function () {
+    var NAME = @@NAME@@, W = @@W@@, H = @@H@@, FPS = @@FPS@@, DUR = @@DUR@@;
+    // bottom -> top: [file, layer, start s, source in s, duration s, still, gain dB or null, [[t, scale %, x, y]] or null]
+    var L = [
+@@ROWS@@
+    ];
+    var here = new File($.fileName).parent;
+    app.beginUndoGroup("montage-crew import");
+    var folder = app.project.items.addFolder(NAME);
+    var comp = app.project.items.addComp(NAME, W, H, 1, DUR, FPS);
+    comp.parentFolder = folder;
+    var cache = {}, missing = [];
+    for (var i = 0; i < L.length; i++) {
+        var r = L[i], src = cache[r[0]];
+        if (!src) {
+            var f = new File(here.fsName + "/" + r[0]);
+            if (!f.exists) { missing.push(r[0]); continue; }
+            src = cache[r[0]] = app.project.importFile(new ImportOptions(f));
+            src.parentFolder = folder;
+        }
+        var lay = comp.layers.add(src);
+        lay.name = r[1];
+        lay.startTime = r[5] ? r[2] : r[2] - r[3];
+        lay.inPoint = r[2];
+        lay.outPoint = r[2] + r[4];
+        if (lay.hasAudio) {
+            if (r[6] === null) { lay.audioEnabled = false; }
+            else { lay.property("ADBE Audio Group").property("ADBE Audio Levels").setValue([r[6], r[6]]); }
+        }
+        if (r[7]) {
+            var tg = lay.property("ADBE Transform Group"), sc = tg.property("ADBE Scale"), po = tg.property("ADBE Position");
+            for (var k = 0; k < r[7].length; k++) {
+                var q = r[7][k];
+                if (r[7].length == 1) { sc.setValue([q[1], q[1]]); po.setValue([q[2], q[3]]); }
+                else { sc.setValueAtTime(q[0], [q[1], q[1]]); po.setValueAtTime(q[0], [q[2], q[3]]); }
+            }
+        }
+    }
+    app.endUndoGroup();
+    comp.openInViewer();
+    if (missing.length) { alert("montage-crew: missing next to this script:\n" + missing.join("\n")); }
+})();
+'''
+JSX_FORBIDDEN = ("system.callSystem", "File.execute", ".execute(", "$.evalFile", "eval(", "app.scheduleTask", "Socket",
+                 "app.executeCommand", "#include", ".open(")
+
+
+def jsx_str(s):
+    """The ONLY way a value enters the jsx: a JSON string literal, ASCII-only (\\uXXXX), safe in ES3."""
+    return json.dumps(str(s), ensure_ascii=True)
+
+
+def jsx_forbidden(js):
+    """forbidden calls in the CODE (string literals blanked first: a layer named "system.callSystem" is only data)."""
+    code = re.sub(r'"(?:[^"\\\n]|\\.)*"', '""', js)
+    return [w for w in JSX_FORBIDDEN if w in code]
+
+
+def jsx_num(x):
+    x = float(x)
+    return repr(round(x, 4)) if math.isfinite(x) else "0"
+
+
+def ae_keys(e, W, H, fps):
+    """[(t, scale %, x, y)] at the same times the XML keys use (segment edges); one entry = a static transform."""
+    it, info = e["item"], e["info"]
+    sw, sh = info.get("w") or W, info.get("h") or H
+    fitk = (min if it.get("fit") == "contain" else max)(W / sw, H / sh)
+    segs = (it.get("zoom") or {}).get("segments") or []
+    ax, ay = it.get("anchor") or [W / 2, H / 2]
+    a, n = e["rec_in"], e["n"]
+    frames = sorted({a} | ({a + n - 1} if segs else set()) |
+                    {int(round(float(s[k]) * fps)) for s in segs for k in ("s", "e") if a <= round(float(s[k]) * fps) < a + n})
+    out = []
+    for fr in frames:
+        t = fr / fps
+        z = value_at(segs, "z", 1.0, t)
+        dx = (ax - W / 2) * (1 - z) + value_at(segs, "tx", 0.0, t)
+        dy = (ay - H / 2) * (1 - z) - value_at(segs, "ty", 0.0, t)
+        out.append((t, 100 * fitk * z, W / 2 + dx, H / 2 + dy))
+    return out
+
+
+def export_ae(items, sfx, D, W, H, fps, jsx_path, name="montage-crew"):
+    jsx_path = pathlib.Path(jsx_path)
+    mdir = jsx_path.parent / "media"
+    media = copy_media([i["path"] for i in items] + [c["path"] for c in sfx], mdir)
+    vtracks, atracks = plan(items, sfx, D, fps)
+    # a video layer whose sound is also on an audio lane (the a-roll as voice) keeps its sound in AE; others are muted
+    heard = {(id(e["item"])): e["db"] for lane in atracks for e in lane}
+    rows = []
+    for lane, is_video in [(l, True) for l in vtracks] + [(l, False) for l in atracks]:
+        for e in lane:
+            if not is_video and any(x["item"] is e["item"] for l in vtracks for x in l):
+                continue
+            copy = media[e["path"]]
+            if copy.parent.resolve() != mdir.resolve() or not copy.is_file():
+                raise SystemExit(f"❌ AE export: {copy} is not in {mdir}")
+            keys = "[" + ", ".join("[" + ", ".join(jsx_num(v) for v in k) + "]" for k in ae_keys(e, W, H, fps)) + "]" \
+                if is_video else "null"
+            db = jsx_num(heard[id(e["item"])]) if id(e["item"]) in heard else ("null" if is_video else jsx_num(e["db"]))
+            rows.append("        [" + ", ".join([jsx_str("media/" + copy.name), jsx_str(e["layer"]), jsx_num(e["rec_in"] / fps),
+                                                 jsx_num(e["src_in"] / fps), jsx_num((e["rec_out"] - e["rec_in"]) / fps),
+                                                 "true" if still(e["path"]) else "false", db, keys]) + "]")
+    js = AE_JSX
+    for k, v in (("@@NAME@@", jsx_str(name)), ("@@W@@", str(int(W))), ("@@H@@", str(int(H))), ("@@FPS@@", jsx_num(fps)),
+                 ("@@DUR@@", jsx_num(D)), ("@@ROWS@@", ",\n".join(rows))):
+        js = js.replace(k, v)
+    bad = jsx_forbidden(js)
+    if bad:
+        raise SystemExit(f"❌ AE export: forbidden call in the jsx: {bad}")
+    jsx_path.parent.mkdir(parents=True, exist_ok=True)
+    jsx_path.write_bytes(js.encode("ascii"))
+    print(f"✅ {jsx_path} ({len(rows)} layers, media in {mdir})")
+    return jsx_path
+
+
+def export_layers(items, sfx, D, fps, out_dir):
+    """<out_dir>/NN_<layer>_<name>.<ext> numbered bottom -> top (video, then audio) + order.txt + layers.csv."""
+    import csv, re
+    out_dir = pathlib.Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    vtracks, atracks = plan(items, sfx, D, fps)
+    rows, n = [], 0
+    for kind, lanes in (("video", vtracks), ("audio", atracks)):
+        for ti, lane in enumerate(lanes, 1):
+            for e in lane:
+                n += 1
+                safe = lambda s: re.sub(r"[^\w.-]+", "_", str(s)).strip("._")[:40] or "x"
+                dst = out_dir / f"{n:02d}_{safe(e['layer'])}_{safe(pathlib.Path(e['path']).stem)}{pathlib.Path(e['path']).suffix.lower()}"
+                if dst.exists():
+                    dst.unlink()
+                try:
+                    os.link(e["path"], dst)
+                except OSError:
+                    shutil.copy2(e["path"], dst)
+                rows.append({"file": dst.name, "kind": kind, "track": f"{kind[0].upper()}{ti}",
+                             "start_s": round(e["rec_in"] / fps, 3), "end_s": round(e["rec_out"] / fps, 3),
+                             "source_in_s": round(e["src_in"] / fps, 3), "gain_db": e["db"] if kind == "audio" else ""})
+    (out_dir / "order.txt").write_text(
+        "# bottom -> top. file<TAB>start s<TAB>end s<TAB>track. Place each file at its start on its own track.\n" +
+        "".join(f"{r['file']}\t{r['start_s']:.3f}\t{r['end_s']:.3f}\t{r['track']}\n" for r in rows), encoding="utf-8")
+    with open(out_dir / "layers.csv", "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0]) if rows else ["file"])
+        w.writeheader(); w.writerows(rows)
+    print(f"✅ {out_dir} ({len(rows)} files + order.txt + layers.csv)")
+    return out_dir
 
 
 # ── selftest ───────────────────────────────────────────────────────────────
@@ -574,6 +748,35 @@ def selftest():
         root = ET.parse(x).getroot()
         assert len(root.findall("sequence/media/video/track")) == 4 and len(root.findall("sequence/media/audio/track")) == 3
         assert int(root.findtext("sequence/duration")) == 90
+        # After Effects jsx: hostile names stay inert string data, forbidden calls absent, valid JS (node --check)
+        hostile = ['");system.callSystem("calc");//', chr(92), "a" + chr(10) + "b", "*/", "x" + chr(0x2028) + "y",
+                   "<script>alert(1)</script>", "Taher عربي mixed", "'; app.quit(); '"]
+        items2 = items + [dict(items[3], layer=h, seq=100 + k) for k, h in enumerate(hostile)]
+        jsx = export_ae(items2, sfx, D, W, H, 30, out / "project" / "ae_import.jsx", hostile[0])
+        js = jsx.read_text(encoding="ascii")
+        assert not jsx_forbidden(js) and jsx_forbidden('x;' + 'system.callSystem("calc")')
+        assert jsx_forbidden(js.replace("app.endUndoGroup();", "File.execute();")), "the guard sees code"
+        assert all(jsx_str(h) in js for h in hostile) and "media/aroll.mp4" in js and "media/music.wav" in js
+        assert js.count("media/aroll.mp4") == 1, "a-roll imported once (its sound rides on the video layer)"
+        assert len(re.findall(r"^\s+\[\"media/", js, re.M)) == 4 + len(hostile) + 2, js  # 4 video + hostile + music + click
+        node = mc_profile.tool("node")
+        if os.path.isfile(node):
+            chk = pathlib.Path(d) / "ae_check.js"   # node --check refuses the .jsx extension
+            shutil.copyfile(jsx, chk)
+            r = subprocess.run([node, "--check", str(chk)], capture_output=True, text=True)
+            assert r.returncode == 0, r.stderr
+            rt = pathlib.Path(d) / "rt.js"
+            rt.write_text("var a = [" + ", ".join(jsx_str(h) for h in hostile) + "]; process.stdout.write(JSON.stringify(a));",
+                          encoding="ascii")
+            got = subprocess.run([node, str(rt)], capture_output=True, text=True, encoding="utf-8").stdout
+            assert json.loads(got) == hostile, got
+        # CapCut / Final Cut: numbered layer files + order.txt + layers.csv
+        lay = export_layers(items, sfx, D, 30, out / "project" / "layers")
+        order = [l.split("\t") for l in (lay / "order.txt").read_text(encoding="utf-8").splitlines() if not l.startswith("#")]
+        assert [o[0] for o in order][:4] == ["01_plate_plate.png", "02_aroll_aroll.mp4", "03_speaker_speaker.mov",
+                                            "04_captions_captions.mov"], order
+        assert len(order) == 7 and order[3][1] == "1.000" and all((lay / o[0]).is_file() for o in order), order
+        assert (lay / "layers.csv").read_text(encoding="utf-8").startswith("file,kind,track,start_s")
         # 16:9 from the same layers (contain-fit plate is fine; just size + duration)
         final16, *_ = render(work, "16x9", pathlib.Path(d) / "out" / "demo16", dur=1.0, do_master=False)
         p16 = probe(final16)
@@ -590,6 +793,9 @@ def main():
     ap.add_argument("--format", default=None, help="9x16 | 16x9 (default: the profile's; 'both' -> call twice)")
     ap.add_argument("--out", help="<output_dir>/<name> (writes <name>.mp4)")
     ap.add_argument("--xml", action="store_true", help="also write <out>/project/timeline.xml + media/")
+    ap.add_argument("--ae", action="store_true", help="also write <out>/project/ae_import.jsx + media/ (After Effects)")
+    ap.add_argument("--layers-out", action="store_true",
+                    help="also write <out>/project/layers/ numbered files + order.txt + layers.csv (CapCut, Final Cut)")
     ap.add_argument("--layers"); ap.add_argument("--sfx")
     ap.add_argument("--dur", type=float); ap.add_argument("--fps", type=int, default=30)
     ap.add_argument("--no-master", action="store_true")
@@ -603,13 +809,17 @@ def main():
     if not a.out:
         raise SystemExit("❌ --out <output_dir>/<name> is required")
     final, items, sfx, D, (W, H) = render(a.work, fmt, a.out, a.layers, a.sfx, a.dur, a.fps, not a.no_master)
+    base = pathlib.Path(a.out)
+    base = base.with_suffix("") if base.suffix == ".mp4" else base
     if a.xml:
-        base = pathlib.Path(a.out)
-        base = base.with_suffix("") if base.suffix == ".mp4" else base
         x = export_xml(items, sfx, D, W, H, a.fps, base / "project" / "timeline.xml", base.name)
         errs = check_xml(x)
         if errs:
             raise SystemExit("❌ XML check:\n" + "\n".join(errs))
+    if a.ae:
+        export_ae(items, sfx, D, W, H, a.fps, base / "project" / "ae_import.jsx", base.name)
+    if a.layers_out:
+        export_layers(items, sfx, D, a.fps, base / "project" / "layers")
 
 
 if __name__ == "__main__":
